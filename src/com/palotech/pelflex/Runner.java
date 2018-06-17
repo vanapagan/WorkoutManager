@@ -11,21 +11,12 @@ public class Runner {
 
     public static void main(String[] args) {
 
-        WorkoutService.getWorkoutList().add(new Workout(123, Workout.Variation.NORMAL, 56,0.0, 0.0, 1, 56));
-        WorkoutService.getWorkoutList().add(new Workout(123, Workout.Variation.FAST, 30,0.0, 0.0, 1, 30));
+        WorkoutService.getWorkoutList().add(new Workout(123, Workout.Variation.NORMAL, 56,0.0, 0.0, 0.01d, 56));
+        WorkoutService.getWorkoutList().add(new Workout(123, Workout.Variation.FAST, 30,0.0, 0.0, 0.01d, 30));
 
         for (int i = 0; i < 375; i++) {
             WorkoutService.getNewWorkout(123);
         }
-
-        /*
-        WorkoutService.getWorkoutList().add(new Workout(123, "NORMAL", 56,0.0, 0.0, 1));
-        WorkoutService.getWorkoutList().add(new Workout(123, "NORMAL", 56,0.0, 0.0, 1));
-        WorkoutService.getWorkoutList().add(new Workout(123, "FAST", 56,0.0, 0.0, 1));
-        WorkoutService.getWorkoutList().add(new Workout(123, "NORMAL", 56,0.0, 0.0, 1));
-        WorkoutService.getWorkoutList().add(new Workout(123, "FAST", 56,0.0, 0.0, 1));
-        System.out.println("Next workout will be: " + WorkoutService.getNewWorkout(123).getVariation());
-        */
 
     }
 

@@ -38,41 +38,34 @@ public class WorkoutService {
 
     public static Workout composeNewWorkout(int userId, Workout.Variation variation) {
         Workout lastWorkoutOpt = !workoutList.isEmpty() ? workoutList.stream().filter(w -> variation == w.getVariation()).collect(Collectors.toList()).get(workoutList.stream().filter(w -> variation == w.getVariation()).collect(Collectors.toList()).size() - 1) : null;
-
         Workout lastWorkout = lastWorkoutOpt != null ? lastWorkoutOpt : new Workout(userId, Workout.Variation.NORMAL, 56, 0.0d, 0.0d, 1, 56);
 
         double lastHandicap = lastWorkout.getHandicap();
         double lastIncPercentage = lastWorkout.getIncPercentage();
-        int lastDecPercentage = lastWorkout.getDecPercentage();
+        double lastDecPercentage = lastWorkout.getDecPercentage();
 
         double maxDuration = lastWorkout.getMaxDuration();
         double handicap = lastHandicap;
 
         double incPercentage = lastIncPercentage;
-        int decPercentage = lastDecPercentage;
+        double decPercentage = lastDecPercentage;
 
         double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(lastWorkout.getId());
         maxDuration = maxDuration * (1.0d + userFeedbackCoef);
 
-        double durCremented;
+        double duration;
         if (lastHandicap >= 0.90d) {
-            if (lastIncPercentage >= 0.04d) {
-                incPercentage = 0.0d;
-            } else {
-                incPercentage = (lastIncPercentage == 0.0 ? 0.008 : lastIncPercentage) * 1.50d;
-            }
-             durCremented = maxDuration * (1 + incPercentage);
-             handicap = 0;
+            incPercentage = lastIncPercentage >= 0.04d ? 0.0d : (lastIncPercentage == 0.0d ? 0.008d : lastIncPercentage) * 1.50d;
+            duration = maxDuration * (1.0d + incPercentage);
+            handicap = 0;
          } else {
-            decPercentage = generateRandomInteger(1, 10, lastDecPercentage);
-            durCremented = maxDuration * (100 - decPercentage) / 100;
-            handicap = handicap == 0.0d ? 0.10 : handicap;
+            decPercentage = generateRandomInteger(1, 10, (int) (lastDecPercentage * 100));
+            duration = maxDuration * (1.0d - decPercentage / 100);
+            handicap = handicap == 0.0d ? 0.10d : handicap;
             handicap *= 1.19d;
         }
 
-        maxDuration = durCremented > maxDuration ? durCremented : maxDuration;
-
-        double duration = durCremented;
+        maxDuration = duration > maxDuration ? duration : maxDuration;
 
         System.out.println(lastWorkout.getId() + " " + maxDuration + " - " + duration + " - " + handicap + " percentage: " + incPercentage + " --- " + variation);
         return new Workout(userId, variation, duration, handicap, incPercentage, decPercentage, maxDuration);

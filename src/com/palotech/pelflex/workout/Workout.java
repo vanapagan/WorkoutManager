@@ -12,11 +12,11 @@ public class Workout {
     private double duration;
     private double handicap;
     private double incPercentage;
-    private int decPercentage;
+    private double decPercentage;
     private double maxDuration;
     private LocalDateTime date;
 
-    public Workout(int userId, Variation variation, double duration, double handicap, double incPercentage, int decPercentage, double maxDuration) {
+    public Workout(int userId, Variation variation, double duration, double handicap, double incPercentage, double decPercentage, double maxDuration) {
         this.Id = ++idCount;
         this.userId = userId;
         this.variation = variation;
@@ -36,7 +36,7 @@ public class Workout {
         return variation;
     }
 
-    public int getDecPercentage() {
+    public double getDecPercentage() {
         return decPercentage;
     }
 
