@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout;
 
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -19,11 +21,21 @@ public class WorkoutService {
     }
 
     public static Workout getNewWorkout(int userId, Predicate<Place>... filters) {
-        Map<Workout.Variation, Long> countedWorkoutsMap = workoutList.stream().collect(Collectors.groupingBy(w -> w.getVariation(), Collectors.counting()));
+        Map<Workout.Variation, Long> countedWorkoutsMap = workoutList.stream().filter(w -> w.getUserId() == userId).collect(Collectors.groupingBy(w -> w.getVariation(), Collectors.counting()));
 
         List<Place> sortedLeaderboard = new ArrayList<>();
-        countedWorkoutsMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue()).forEachOrdered(e -> sortedLeaderboard.add(new Place(e.getKey(), e.getValue())));
+        countedWorkoutsMap.entrySet().stream().forEachOrdered(e -> sortedLeaderboard.add(new Place(e.getKey(), e.getValue())));
+
+        List<Workout.Variation> variationList = getAvailableVariations(userId);
+        List<Place> missingVariationsList = new ArrayList<>();
+        for (Workout.Variation v : variationList) {
+            if (sortedLeaderboard.stream().noneMatch(p -> p.getName() == v)) {
+                missingVariationsList.add(new Place(v, 0));
+            }
+        }
+
+        sortedLeaderboard.addAll(missingVariationsList);
+        sortedLeaderboard.sort(Comparator.comparing(Place::getNoOfOccurs));
 
         Predicate<Place> superFilter = combineFilters(filters);
 
@@ -31,14 +43,19 @@ public class WorkoutService {
         Workout.Variation nextWorkoutVariation = nextPlaceOptional.isPresent() ? nextPlaceOptional.get().getName() : Workout.Variation.NORMAL;
 
         Workout w = composeNewWorkout(userId, nextWorkoutVariation);
-        workoutList.add(w);
 
         return w;
     }
 
     public static Workout composeNewWorkout(int userId, Workout.Variation variation) {
-        Workout lastWorkoutOpt = !workoutList.isEmpty() ? workoutList.stream().filter(w -> variation == w.getVariation()).collect(Collectors.toList()).get(workoutList.stream().filter(w -> variation == w.getVariation()).collect(Collectors.toList()).size() - 1) : null;
-        Workout lastWorkout = lastWorkoutOpt != null ? lastWorkoutOpt : new Workout(userId, Workout.Variation.NORMAL, 56, 0.0d, 0.0d, 1, 56);
+        List<Workout> subList = workoutList.stream().filter(w -> variation == w.getVariation()).collect(Collectors.toList());
+
+        Workout lastWorkout;
+        if (!subList.isEmpty()) {
+            lastWorkout = subList.get(subList.size() - 1);
+        } else {
+            lastWorkout = variation == Workout.Variation.NORMAL ? new Workout(userId, Workout.Variation.NORMAL, 56, 0.0d, 0.0d, 1, 56) : new Workout(123, Workout.Variation.FAST, 30,0.0, 0.0, 0.01d, 30);
+        }
 
         double lastHandicap = lastWorkout.getHandicap();
         double lastIncPercentage = lastWorkout.getIncPercentage();
@@ -78,6 +95,14 @@ public class WorkoutService {
     public static int generateRandomInteger(int min, int max, int lastRandom) {
         int random = RANDOM_GENERATOR.nextInt((max - min) + 1) + min;
         return random != lastRandom ? random : generateRandomInteger(min, max, lastRandom);
+    }
+
+    public static List<Workout.Variation> getAvailableVariations(int userId) {
+        List<Workout.Variation> list = new ArrayList();
+        list.add(Workout.Variation.NORMAL);
+        list.add(Workout.Variation.FAST);
+
+        return list;
     }
 
     public static List<Workout> getWorkoutList() {
