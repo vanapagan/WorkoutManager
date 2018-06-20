@@ -1,9 +1,6 @@
 package com.palotech.pelflex;
 
-import com.palotech.pelflex.workout.ComplexStep;
-import com.palotech.pelflex.workout.FeedbackService;
-import com.palotech.pelflex.workout.Workout;
-import com.palotech.pelflex.workout.WorkoutService;
+import com.palotech.pelflex.workout.*;
 
 /**
  * Created by Kristo on 08.06.2018.
@@ -18,7 +15,10 @@ public class Runner {
         }
         */
 
-        System.out.print(new ComplexStep(ComplexStep.Type.MAX, 5, 0.50d));
+        System.out.println(new ComplexStep(ComplexStep.Type.MAX, 3, 0.50d));
+
+        // TODO Mustri genereerimine
+        PatternManager.generatePattern(57);
 
     }
 

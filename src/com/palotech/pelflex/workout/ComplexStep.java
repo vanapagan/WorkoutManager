@@ -45,7 +45,8 @@ public class ComplexStep {
     public enum Type {
         MAX,
         MID,
-        MIN;
+        MIN,
+        UNKNOWN;
     }
 
     @Override
