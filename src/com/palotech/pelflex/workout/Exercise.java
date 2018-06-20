@@ -1,11 +1,11 @@
 package com.palotech.pelflex.workout;
 
-public class Place {
+public class Exercise {
 
     private Workout.Variation name;
     private long noOfOccurs;
 
-    public Place(Workout.Variation name, long noOfOccurs) {
+    public Exercise(Workout.Variation name, long noOfOccurs) {
         this.name = name;
         this.noOfOccurs = noOfOccurs;
     }

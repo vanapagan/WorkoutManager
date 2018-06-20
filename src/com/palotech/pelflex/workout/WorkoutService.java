@@ -1,7 +1,5 @@
 package com.palotech.pelflex.workout;
 
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
-
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -16,30 +14,30 @@ public class WorkoutService {
     private static List<Workout> workoutList = new ArrayList<>();
 
     public static Workout getNewWorkoutThatIsNotPrevious(int userId, Workout.Variation previousVariation) {
-        Predicate<Place> notPreviousVariation = p -> previousVariation != p.getName();
+        Predicate<Exercise> notPreviousVariation = p -> previousVariation != p.getName();
         return getNewWorkout(userId, notPreviousVariation);
     }
 
-    public static Workout getNewWorkout(int userId, Predicate<Place>... filters) {
+    public static Workout getNewWorkout(int userId, Predicate<Exercise>... filters) {
         Map<Workout.Variation, Long> countedWorkoutsMap = workoutList.stream().filter(w -> w.getUserId() == userId).collect(Collectors.groupingBy(w -> w.getVariation(), Collectors.counting()));
 
-        List<Place> sortedLeaderboard = new ArrayList<>();
-        countedWorkoutsMap.entrySet().stream().forEachOrdered(e -> sortedLeaderboard.add(new Place(e.getKey(), e.getValue())));
+        List<Exercise> sortedLeaderboard = new ArrayList<>();
+        countedWorkoutsMap.entrySet().stream().forEachOrdered(e -> sortedLeaderboard.add(new Exercise(e.getKey(), e.getValue())));
 
         List<Workout.Variation> variationList = getAvailableVariations(userId);
-        List<Place> missingVariationsList = new ArrayList<>();
+        List<Exercise> missingVariationsList = new ArrayList<>();
         for (Workout.Variation v : variationList) {
             if (sortedLeaderboard.stream().noneMatch(p -> p.getName() == v)) {
-                missingVariationsList.add(new Place(v, 0));
+                missingVariationsList.add(new Exercise(v, 0));
             }
         }
 
         sortedLeaderboard.addAll(missingVariationsList);
-        sortedLeaderboard.sort(Comparator.comparing(Place::getNoOfOccurs));
+        sortedLeaderboard.sort(Comparator.comparing(Exercise::getNoOfOccurs));
 
-        Predicate<Place> superFilter = combineFilters(filters);
+        Predicate<Exercise> superFilter = combineFilters(filters);
 
-        Optional<Place> nextPlaceOptional = sortedLeaderboard.stream().filter(superFilter).findFirst();
+        Optional<Exercise> nextPlaceOptional = sortedLeaderboard.stream().filter(superFilter).findFirst();
         Workout.Variation nextWorkoutVariation = nextPlaceOptional.isPresent() ? nextPlaceOptional.get().getName() : Workout.Variation.NORMAL;
 
         Workout w = composeNewWorkout(userId, nextWorkoutVariation);
