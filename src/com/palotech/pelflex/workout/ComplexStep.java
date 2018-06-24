@@ -42,6 +42,22 @@ public class ComplexStep {
 
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public List<Step> getStepsList() {
+        return stepsList;
+    }
+
     public enum Type {
         MAX,
         MID,
@@ -51,6 +67,6 @@ public class ComplexStep {
 
     @Override
     public String toString() {
-        return "ComplexStep  " + duration + "  F=" + stepsList.get(0).getDuration() + "  R=" + stepsList.get(1).getDuration();
+        return stepsList.get(0).getDuration() + " " + stepsList.get(1).getDuration();
     }
 }

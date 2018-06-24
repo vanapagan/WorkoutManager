@@ -21,7 +21,7 @@ public class Runner {
 
         // TODO Mustri genereerimine
         //for (int i = 0; i < 100; i++) {
-            PatternManager.generatePattern(57);
+            PatternService.generatePattern(57);
         //}
 
     }

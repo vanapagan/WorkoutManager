@@ -4,9 +4,19 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class PatternManager {
+public class PatternService {
 
     public static Pattern generatePattern(int duration) {
+        List<ComplexContainer> containersList = generateStepContainersList(duration);
+        List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
+
+        Pattern pattern = new Pattern(stepsList);
+        System.out.println(pattern);
+
+        return pattern;
+    }
+
+    private static List<ComplexContainer> generateStepContainersList(int duration) {
         // TODO Mitmeks tykiks (sammupesaks) me kestuse jagame
         int denominator = getDenominator();
         int reqDur = duration;
@@ -59,13 +69,7 @@ public class PatternManager {
         Predicate<ComplexContainer> underspillPredicate = c -> c.getDuration() < minStepSize;
         fillUnderspill(containerList, underspillPredicate);
 
-        // TODO mustri v2lja printimine
-        int sum = containerList.stream().mapToInt(c -> c.getDuration()).sum();
-        //if (sum != reqDur) {
-            System.out.println(containerList.stream().map(ComplexContainer::toString).collect(Collectors.joining(" ")) + " sum: " + sum);
-        //}
-
-        return null;
+        return containerList;
     }
 
     private static void fillUnderspill(List<ComplexContainer> list, Predicate<ComplexContainer> underspillPredicate) {
