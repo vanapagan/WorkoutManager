@@ -8,7 +8,7 @@ public class PatternService {
 
     public static Pattern generatePattern(int duration) {
         List<ComplexContainer> containersList = generateStepContainersList(duration);
-        List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
+        List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.7d)).collect(Collectors.toList());
 
         Pattern pattern = new Pattern(stepsList);
         System.out.println(pattern);

@@ -24,6 +24,9 @@ public class Runner {
             PatternService.generatePattern(57);
         //}
 
+        //ComplexStep cs = new ComplexStep(ComplexStep.Type.MIN, 8, 0.5d);
+        //System.out.println(cs);
+
     }
 
 

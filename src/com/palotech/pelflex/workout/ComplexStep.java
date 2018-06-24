@@ -20,22 +20,27 @@ public class ComplexStep {
     private void initSteps() {
         stepsList = new ArrayList<>();
 
-        int smallerDiv;
-        int largerDiv;
+        // TODO balance-iga katsetamine
+
+        int flexDiv = new Double(duration * balance).intValue();
+        int relaxDiv = duration - flexDiv;
+
+        /*
         if (duration % 2 == 0) {
             int stepSize = duration / 2;
-            smallerDiv = stepSize;
-            largerDiv = stepSize;
+            flexDiv = stepSize;
+            relaxDiv = stepSize;
         } else {
-            smallerDiv = duration / 2;
-            largerDiv = duration - smallerDiv;
+            flexDiv = duration / 2;
+            relaxDiv = duration - flexDiv;
         }
+        */
 
         // TODO siia on mingit parameetrit vaja, mis ytleks kumb pool peab suurem olema,
         // TODO kas FLEX v6i RELAX osa
 
-        int flexSize = 1==1 ? largerDiv : smallerDiv;
-        int relaxSize = 2==2 ? smallerDiv : largerDiv;
+        int flexSize = flexDiv;
+        int relaxSize = relaxDiv;
 
         stepsList.add(new Step(Step.Mode.FLEX, flexSize));
         stepsList.add(new Step(Step.Mode.RELAX, relaxSize));
