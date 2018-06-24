@@ -9,6 +9,7 @@ public class PatternManager {
     public static Pattern generatePattern(int duration) {
         // TODO Mitmeks tykiks (sammupesaks) me kestuse jagame
         int denominator = getDenominator();
+        int reqDur = duration;
 
         List<ComplexContainer> containerList = new ArrayList<>();
         for (int i = 0; i < getDenominator(); i++) {
@@ -58,14 +59,15 @@ public class PatternManager {
         Predicate<ComplexContainer> underspillPredicate = c -> c.getDuration() < minStepSize;
         fillUnderspill(containerList, underspillPredicate);
 
-        // TODO we only keep those containers that match our criteria
-        List<ComplexContainer> containerList2 = containerList.stream().filter(overEqMinUnderEqMaxPredicate).collect(Collectors.toList());
-
         // TODO mustri v2lja printimine
         int sum = containerList.stream().mapToInt(c -> c.getDuration()).sum();
-        //if (sum != 57) {
+        //if (sum != reqDur) {
             System.out.println(containerList.stream().map(ComplexContainer::toString).collect(Collectors.joining(" ")) + " sum: " + sum);
         //}
+
+        // TODO rekursioon p6hjustab meile stack overflow-d, nt 137 juures juba
+
+        // TODO ylej22kide jagamine tuleks ka ilma yleliigse itereerimiseta, sest see on suht m6ttetu, lisatavad suurused saab eelnevalt v2lja kalkuleerida
 
         return null;
     }
@@ -93,41 +95,43 @@ public class PatternManager {
     }
 
     private static List<ComplexContainer> revivePatientUntilHealthy(List<ComplexContainer> list, ComplexContainer patientContainer) {
-        if (list.stream().anyMatch(c -> c.getDuration() > getMinStepSize())) {
-            Optional<ComplexContainer> donorOptional = list
-                    .stream()
-                    .filter(c -> c.getDuration() > getMinStepSize())
-                    .sorted(Comparator.comparing(ComplexContainer::getDuration).reversed())
-                    .findFirst();
-            if (donorOptional.isPresent()) {
-                ComplexContainer cc = donorOptional.get();
-                int duration = patientContainer.getDuration();
-                if (duration < getMinStepSize() && (cc.getDuration() - 1) >= getMinStepSize()) {
-                    cc.setDuration(cc.getDuration() - 1);
-                    patientContainer.setDuration(duration + 1);
+        while (patientContainer.getDuration() < getMinStepSize()) {
+            if (list.stream().anyMatch(c -> c.getDuration() > getMinStepSize())) {
+                Optional<ComplexContainer> donorOptional = list
+                        .stream()
+                        .filter(c -> c.getDuration() > getMinStepSize())
+                        .sorted(Comparator.comparing(ComplexContainer::getDuration).reversed())
+                        .findFirst();
+                if (donorOptional.isPresent()) {
+                    ComplexContainer cc = donorOptional.get();
+                    int duration = patientContainer.getDuration();
+                    if (duration < getMinStepSize() && (cc.getDuration() - 1) >= getMinStepSize()) {
+                        cc.setDuration(cc.getDuration() - 1);
+                        patientContainer.setDuration(duration + 1);
+                    }
                 }
             }
-        } else {
-            list.add(new ComplexContainer(ComplexStep.Type.UNKNOWN, 0));
         }
 
-        return patientContainer.getDuration() < 0 ? revivePatientUntilHealthy(list.stream().filter(c -> c.getDuration() < getMaxStepSize()).collect(Collectors.toList()), patientContainer) : list;
+        return list;
     }
 
     private static List<ComplexContainer> distributeWealth(List<ComplexContainer> list, ComplexContainer donorContainer) {
-        if (list.stream().anyMatch(c -> c.getDuration() < getMaxStepSize())) {
-            for (ComplexContainer cc : list.stream().sorted(Comparator.comparing(ComplexContainer::getDuration)).collect(Collectors.toList())) {
-                int duration = donorContainer.getDuration();
-                if (duration > 0 && duration < getMaxStepSize()) {
-                    donorContainer.setDuration(duration - 1);
-                    cc.setDuration(duration + 1);
+        while (donorContainer.getDuration() > 0) {
+            if (list.stream().anyMatch(c -> c.getDuration() < getMaxStepSize())) {
+                for (ComplexContainer cc : list.stream().sorted(Comparator.comparing(ComplexContainer::getDuration)).collect(Collectors.toList())) {
+                    int duration = donorContainer.getDuration();
+                    if (duration > 0 && duration < getMaxStepSize()) {
+                        donorContainer.setDuration(duration - 1);
+                        cc.setDuration(duration + 1);
+                    }
                 }
+            } else {
+                list.add(new ComplexContainer(ComplexStep.Type.UNKNOWN, 0));
             }
-        } else {
-            list.add(new ComplexContainer(ComplexStep.Type.UNKNOWN, 0));
         }
 
-        return donorContainer.getDuration() > 0 ? distributeWealth(list.stream().filter(c -> c.getDuration() < getMaxStepSize()).collect(Collectors.toList()), donorContainer) : list;
+        return list;
     }
 
     private static List<ComplexContainer> distributeWealth(List<ComplexContainer> list, int duration) {
