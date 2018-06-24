@@ -21,7 +21,7 @@ public class Runner {
 
         // TODO Mustri genereerimine
         //for (int i = 0; i < 100; i++) {
-            PatternService.generatePattern(57);
+            PatternManager.generatePattern(57);
         //}
 
         //ComplexStep cs = new ComplexStep(ComplexStep.Type.MIN, 8, 0.5d);

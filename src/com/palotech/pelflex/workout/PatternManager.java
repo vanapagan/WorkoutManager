@@ -4,11 +4,11 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class PatternService {
+public class PatternManager {
 
     public static Pattern generatePattern(int duration) {
         List<ComplexContainer> containersList = generateStepContainersList(duration);
-        List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.7d)).collect(Collectors.toList());
+        List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
 
         Pattern pattern = new Pattern(stepsList);
         System.out.println(pattern);
@@ -38,7 +38,6 @@ public class PatternService {
 
         // TODO MAX ja MIN konteinerite m22ramine
         containerList.stream().limit(noOfMaxCells).forEach(c -> c.setType(ComplexStep.Type.MAX));
-        containerList.stream().filter(c -> c.getType() == ComplexStep.Type.UNKNOWN).forEach(c -> c.setType(ComplexStep.Type.MIN));
 
         // TODO MAX konteinerid tuleb servani ära täita
         int maxStepSize = getMaxStepSize();
@@ -48,8 +47,6 @@ public class PatternService {
                 cc.increase(1, maxStepSize);
             }
         }
-
-        boolean areAllMaxContainersFull = containerList.stream().filter(c -> c.getType() == ComplexStep.Type.MAX).allMatch(c -> c.getDuration() == maxStepSize);
 
         // TODO Ylej22nud konteinerite v2hemalt miinimumiga (4s) täitmine
         distributeWealth(containerList.stream().filter(c -> c.getType() != ComplexStep.Type.MAX).collect(Collectors.toList()), duration);
@@ -68,6 +65,24 @@ public class PatternService {
         // TODO deal with the underspill
         Predicate<ComplexContainer> underspillPredicate = c -> c.getDuration() < minStepSize;
         fillUnderspill(containerList, underspillPredicate);
+
+        // TODO fill in missing types
+        containerList
+                .stream()
+                .filter(c -> c.getType() == ComplexStep.Type.UNKNOWN)
+                .forEach(c -> {
+                    int currentDuration = c.getDuration();
+                    ComplexStep.Type type;
+                    if (currentDuration == getMaxStepSize()) {
+                        type = ComplexStep.Type.MAX;
+                    } else if (currentDuration == getMinStepSize()) {
+                        type = ComplexStep.Type.MIN;
+                    } else {
+                        type = ComplexStep.Type.MID;
+                    }
+                    c.setType(type);
+                });
+
 
         return containerList;
     }
