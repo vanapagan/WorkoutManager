@@ -6,41 +6,72 @@ import java.util.stream.Collectors;
 
 public class PatternManager {
 
-    public static Pattern generatePattern(int duration) {
-        List<ComplexContainer> containersList = generateStepContainersList(duration);
+    private int duration;
+    private PatternMetadata metadata;
+
+    public PatternManager(int duration, PatternMetadata metadata) {
+        this.duration = duration;
+        this.metadata = metadata;
+    }
+
+    public Pattern generatePattern() {
+        List<ComplexContainer> containersList = generateStepContainersList();
+
         List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
 
         Pattern pattern = new Pattern(stepsList);
         System.out.println(pattern);
 
+        // TODO Me peame siinkohal patterni raskusastet ka kuidagi kontrollima (inkrementeerima teatud perioodi tagant)
+        // TODO pattern-i raskusastme hindamine
+        getDifficultyCoefficient(pattern);
+
         return pattern;
     }
 
-    private static List<ComplexContainer> generateStepContainersList(int duration) {
-        // TODO Mitmeks tykiks (sammupesaks) me kestuse jagame
-        int denominator = getDenominator();
-        int reqDur = duration;
+    private double getDifficultyCoefficient(Pattern pattern) {
+        // TODO 1. Kestus
+        // TODO 2. Flexide osakaal harjutuses
+        // TODO 3. ComplexSteppide arv
+        // TODO 4. MAX ComplexStep flex/relax osakaal
+        // TODO 5. Vaheldusrikkuse hinnang ehk amplituudide summa
 
+        double duration = pattern.getDuration();
+        double flexPercentage = pattern.getFlexPercentage();
+        int noOfSteps = pattern.getCompStepList().size();
+        double maxFlexOverRelax = pattern.getAvgMaxFlexOverRelax();
+        double variabilityCoefficient = pattern.getVariabilityCoefficient();
+
+        // System.out.println(duration + " " + duration * (flexPercentage * 0.5d) * (noOfSteps - getDenominator() > 1 ? noOfSteps - getDenominator() : 1) * maxFlexOverRelax * (1 + variabilityCoefficient) + " " + pattern);
+
+        return (duration * flexPercentage);
+                //+ (duration * 0.10d * (noOfSteps - getDenominator() > 0 ? noOfSteps - getDenominator() : 1))
+                //   * (duration * 0.10d * maxFlexOverRelax)
+                //+ (duration * 0.10d * (1 + variabilityCoefficient));
+    }
+
+    private List<ComplexContainer> generateStepContainersList() {
+        // TODO Mitmeks tykiks (sammupesaks) me kestuse jagame
+
+        int denominator = metadata.getDenominator();
         List<ComplexContainer> containerList = new ArrayList<>();
-        for (int i = 0; i < getDenominator(); i++) {
+        for (int i = 0; i < denominator; i++) {
             ComplexContainer cc = new ComplexContainer(ComplexStep.Type.UNKNOWN, 0);
             containerList.add(cc);
         }
 
         // TODO Kõigis konteinerites peab olema vähemalt 4s aga mitte rohkem kui 10s
-
         Random r = new Random();
 
         // TODO m22rame suvaliselt, et 37.5-50.0% nendest peavad olema MAX tyypi
         double randDouble = (37.5d + (60.0d - 37.5d) * r.nextDouble());
-        int noOfMaxCells = Double.valueOf(Math.round((denominator * randDouble) / 100)).intValue();;
-        int noOfOtherCells = denominator - noOfMaxCells;
+        int noOfMaxCells = Double.valueOf(Math.round((denominator * randDouble) / 100)).intValue();
 
         // TODO MAX ja MIN konteinerite m22ramine
         containerList.stream().limit(noOfMaxCells).forEach(c -> c.setType(ComplexStep.Type.MAX));
 
         // TODO MAX konteinerid tuleb servani ära täita
-        int maxStepSize = getMaxStepSize();
+        int maxStepSize = metadata.getMax();
         for (ComplexContainer cc : containerList.stream().filter(c -> c.getType() == ComplexStep.Type.MAX).collect(Collectors.toList())) {
             while (cc.getDuration() < maxStepSize && duration > 0) {
                 duration -= 1;
@@ -51,7 +82,7 @@ public class PatternManager {
         // TODO Ylej22nud konteinerite v2hemalt miinimumiga (4s) täitmine
         distributeWealth(containerList.stream().filter(c -> c.getType() != ComplexStep.Type.MAX).collect(Collectors.toList()), duration);
 
-        int minStepSize = getMinStepSize();
+        int minStepSize = metadata.getMin();
 
         Predicate<ComplexContainer> overEqMin = c -> c.getDuration() >= minStepSize;
         Predicate<ComplexContainer> underEqMax = c -> c.getDuration() <= maxStepSize;
@@ -73,9 +104,9 @@ public class PatternManager {
                 .forEach(c -> {
                     int currentDuration = c.getDuration();
                     ComplexStep.Type type;
-                    if (currentDuration == getMaxStepSize()) {
+                    if (currentDuration == metadata.getMax()) {
                         type = ComplexStep.Type.MAX;
-                    } else if (currentDuration == getMinStepSize()) {
+                    } else if (currentDuration == metadata.getMin()) {
                         type = ComplexStep.Type.MIN;
                     } else {
                         type = ComplexStep.Type.MID;
@@ -87,7 +118,7 @@ public class PatternManager {
         return containerList;
     }
 
-    private static void fillUnderspill(List<ComplexContainer> list, Predicate<ComplexContainer> underspillPredicate) {
+    private void fillUnderspill(List<ComplexContainer> list, Predicate<ComplexContainer> underspillPredicate) {
         Optional<ComplexContainer> underspillContainerOpt = list.stream().filter(underspillPredicate).findAny();
         if (underspillContainerOpt.isPresent()) {
             ComplexContainer underspillContainer = underspillContainerOpt.get();
@@ -98,7 +129,7 @@ public class PatternManager {
         }
     }
 
-    private static void distributeOverspill(List<ComplexContainer> list, Predicate<ComplexContainer> overspillPredicate) {
+    private void distributeOverspill(List<ComplexContainer> list, Predicate<ComplexContainer> overspillPredicate) {
         Optional<ComplexContainer> overspillContainerOpt = list.stream().filter(overspillPredicate).findAny();
         if (overspillContainerOpt.isPresent()) {
             ComplexContainer overspillContainer = overspillContainerOpt.get();
@@ -109,19 +140,19 @@ public class PatternManager {
         }
     }
 
-    private static List<ComplexContainer> revivePatientUntilHealthy(List<ComplexContainer> list, ComplexContainer patientContainer) {
-        while (patientContainer.getDuration() < getMinStepSize() && list.stream().anyMatch(c -> c.getDuration() > getMinStepSize())) {
+    private List<ComplexContainer> revivePatientUntilHealthy(List<ComplexContainer> list, ComplexContainer patientContainer) {
+        while (patientContainer.getDuration() < metadata.getMin() && list.stream().anyMatch(c -> (c.getDuration() - 1) > metadata.getMin())) {
             Optional<ComplexContainer> donorOptional = list
                     .stream()
-                    .filter(c -> c.getDuration() > getMinStepSize())
+                    .filter(c -> (c.getDuration() - 1) > metadata.getMin())
                     .sorted(Comparator.comparing(ComplexContainer::getDuration).reversed())
                     .findFirst();
             if (donorOptional.isPresent()) {
-                ComplexContainer cc = donorOptional.get();
-                int duration = patientContainer.getDuration();
-                if (duration < getMinStepSize() && (cc.getDuration() - 1) >= getMinStepSize()) {
-                    cc.setDuration(cc.getDuration() - 1);
-                    patientContainer.setDuration(duration + 1);
+                ComplexContainer donor = donorOptional.get();
+                int patientDuration = patientContainer.getDuration();
+                if (patientDuration < metadata.getMin() && (donor.getDuration() - 1) >= metadata.getMin()) {
+                    donor.setDuration(donor.getDuration() - 1);
+                    patientContainer.setDuration(patientContainer.getDuration() + 1);
                 }
             }
         }
@@ -129,12 +160,12 @@ public class PatternManager {
         return list;
     }
 
-    private static List<ComplexContainer> distributeWealth(List<ComplexContainer> list, ComplexContainer donorContainer) {
-        while (donorContainer.getDuration() > getMaxStepSize()) {
-            if (list.stream().anyMatch(c -> c.getDuration() < getMaxStepSize())) {
-                for (ComplexContainer cc : list.stream().filter(c -> c.getDuration() < getMaxStepSize()).sorted(Comparator.comparing(ComplexContainer::getDuration)).collect(Collectors.toList())) {
+    private List<ComplexContainer> distributeWealth(List<ComplexContainer> list, ComplexContainer donorContainer) {
+        while (donorContainer.getDuration() > metadata.getMax()) {
+            if (list.stream().anyMatch(c -> c.getDuration() < metadata.getMax())) {
+                for (ComplexContainer cc : list.stream().filter(c -> c.getDuration() < metadata.getMax()).sorted(Comparator.comparing(ComplexContainer::getDuration)).collect(Collectors.toList())) {
                     int duration = donorContainer.getDuration();
-                    if (duration > 0 && duration > getMaxStepSize()) {
+                    if (duration > 0 && duration > metadata.getMax()) {
                         donorContainer.setDuration(duration - 1);
                         cc.setDuration(cc.getDuration() + 1);
                     }
@@ -147,7 +178,7 @@ public class PatternManager {
         return list;
     }
 
-    private static List<ComplexContainer> distributeWealth(List<ComplexContainer> list, int duration) {
+    private List<ComplexContainer> distributeWealth(List<ComplexContainer> list, int duration) {
         for (ComplexContainer cc : list) {
             if (duration > 0) {
                 duration -= 1;
@@ -157,16 +188,5 @@ public class PatternManager {
         return duration > 0 ? distributeWealth(list, duration) : list;
     }
 
-    private static int getMaxStepSize() {
-        return 2 * 5;
-    }
-
-    private static int getMinStepSize() {
-        return 2 * 2;
-    }
-
-    private static int getDenominator() {
-        return 8;
-    }
 
 }

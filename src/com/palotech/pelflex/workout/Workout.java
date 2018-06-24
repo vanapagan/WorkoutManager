@@ -9,6 +9,7 @@ public class Workout {
     private int Id;
     private int userId;
     private Variation variation;
+    private Pattern pattern;
     private double duration;
     private double handicap;
     private double incPercentage;
@@ -16,11 +17,12 @@ public class Workout {
     private double maxDuration;
     private LocalDateTime date;
 
-    public Workout(int userId, Variation variation, double duration, double handicap, double incPercentage, double decPercentage, double maxDuration) {
+    public Workout(int userId, Variation variation, double duration, Pattern pattern, double handicap, double incPercentage, double decPercentage, double maxDuration) {
         this.Id = ++idCount;
         this.userId = userId;
         this.variation = variation;
         this.duration = duration;
+        this.pattern = pattern;
         this.handicap = handicap;
         this.incPercentage = incPercentage;
         this.decPercentage = decPercentage;
@@ -56,6 +58,10 @@ public class Workout {
         return duration;
     }
 
+    public Pattern getPattern() {
+        return pattern;
+    }
+
     public double getHandicap() {
         return handicap;
     }
@@ -67,6 +73,19 @@ public class Workout {
     public enum Variation {
         NORMAL,
         FAST;
+    }
+
+    public enum Accumulator {
+        INCREASE_WORKOUT_DURATION,
+        DECREASE_WORKOUT_DURATION,
+        INCREASE_FLEX_TIME,
+        DECREASE_FLEX_TIME,
+        INCREASE_FLEX_MAX_STEP_SIZE,
+        DECREASE_FLEX_MAX_STEP_SIZE,
+        INCREASE_MAX_FLEX_QUANTITY,
+        DECREASE_MAX_FLEX_QUANTITY,
+        INCREASE_STEP_DENOMINATOR,
+        DECREASE_STEP_DENOMINATOR
     }
 
 }

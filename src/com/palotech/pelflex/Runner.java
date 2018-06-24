@@ -8,20 +8,17 @@ import com.palotech.pelflex.workout.*;
 public class Runner {
 
     public static void main(String[] args) {
-        /*
+
         for (int i = 0; i < 375; i++) {
             Workout w = WorkoutService.getNewWorkout(123);
             WorkoutService.getWorkoutList().add(w);
         }
-        */
 
         // System.out.println(new ComplexStep(ComplexStep.Type.MAX, 3, 0.50d));
 
-        // TODO nt 81s ja 137s annab viga
-
         // TODO Mustri genereerimine
-        //for (int i = 0; i < 100; i++) {
-            PatternManager.generatePattern(57);
+        //for (int i = 57; i < 147; i++) {
+            //PatternManager.generatePattern(57, Workout.Variation.NORMAL);
         //}
 
         //ComplexStep cs = new ComplexStep(ComplexStep.Type.MIN, 8, 0.5d);
