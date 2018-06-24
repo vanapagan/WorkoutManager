@@ -17,11 +17,12 @@ public class Runner {
 
         // System.out.println(new ComplexStep(ComplexStep.Type.MAX, 3, 0.50d));
 
-        // TODO Mustri genereerimine
-        for (int i = 0; i < 10; i++) {
-            PatternManager.generatePattern(57);
-        }
+        // TODO nt 81s ja 137s annab viga
 
+        // TODO Mustri genereerimine
+        //for (int i = 0; i < 100; i++) {
+            PatternManager.generatePattern(57);
+        //}
 
     }
 

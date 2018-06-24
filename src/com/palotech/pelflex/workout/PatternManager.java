@@ -65,10 +65,6 @@ public class PatternManager {
             System.out.println(containerList.stream().map(ComplexContainer::toString).collect(Collectors.joining(" ")) + " sum: " + sum);
         //}
 
-        // TODO rekursioon p6hjustab meile stack overflow-d, nt 137 juures juba
-
-        // TODO ylej22kide jagamine tuleks ka ilma yleliigse itereerimiseta, sest see on suht m6ttetu, lisatavad suurused saab eelnevalt v2lja kalkuleerida
-
         return null;
     }
 
@@ -76,8 +72,8 @@ public class PatternManager {
         Optional<ComplexContainer> underspillContainerOpt = list.stream().filter(underspillPredicate).findAny();
         if (underspillContainerOpt.isPresent()) {
             ComplexContainer underspillContainer = underspillContainerOpt.get();
-            revivePatientUntilHealthy(list.stream().filter(c -> c.getDuration() > getMinStepSize()).collect(Collectors.toList()), underspillContainer);
-            fillUnderspill(list.stream().filter(c -> c.getDuration() > getMinStepSize()).collect(Collectors.toList()), underspillPredicate);
+            revivePatientUntilHealthy(list, underspillContainer);
+            fillUnderspill(list, underspillPredicate);
         } else {
             return;
         }
@@ -87,28 +83,26 @@ public class PatternManager {
         Optional<ComplexContainer> overspillContainerOpt = list.stream().filter(overspillPredicate).findAny();
         if (overspillContainerOpt.isPresent()) {
             ComplexContainer overspillContainer = overspillContainerOpt.get();
-            distributeWealth(list.stream().filter(c -> c.getDuration() < getMaxStepSize()).collect(Collectors.toList()), overspillContainer);
-            distributeOverspill(list.stream().filter(c -> c.getDuration() < getMaxStepSize()).collect(Collectors.toList()), overspillPredicate);
+            distributeWealth(list, overspillContainer);
+            distributeOverspill(list, overspillPredicate);
         } else {
             return;
         }
     }
 
     private static List<ComplexContainer> revivePatientUntilHealthy(List<ComplexContainer> list, ComplexContainer patientContainer) {
-        while (patientContainer.getDuration() < getMinStepSize()) {
-            if (list.stream().anyMatch(c -> c.getDuration() > getMinStepSize())) {
-                Optional<ComplexContainer> donorOptional = list
-                        .stream()
-                        .filter(c -> c.getDuration() > getMinStepSize())
-                        .sorted(Comparator.comparing(ComplexContainer::getDuration).reversed())
-                        .findFirst();
-                if (donorOptional.isPresent()) {
-                    ComplexContainer cc = donorOptional.get();
-                    int duration = patientContainer.getDuration();
-                    if (duration < getMinStepSize() && (cc.getDuration() - 1) >= getMinStepSize()) {
-                        cc.setDuration(cc.getDuration() - 1);
-                        patientContainer.setDuration(duration + 1);
-                    }
+        while (patientContainer.getDuration() < getMinStepSize() && list.stream().anyMatch(c -> c.getDuration() > getMinStepSize())) {
+            Optional<ComplexContainer> donorOptional = list
+                    .stream()
+                    .filter(c -> c.getDuration() > getMinStepSize())
+                    .sorted(Comparator.comparing(ComplexContainer::getDuration).reversed())
+                    .findFirst();
+            if (donorOptional.isPresent()) {
+                ComplexContainer cc = donorOptional.get();
+                int duration = patientContainer.getDuration();
+                if (duration < getMinStepSize() && (cc.getDuration() - 1) >= getMinStepSize()) {
+                    cc.setDuration(cc.getDuration() - 1);
+                    patientContainer.setDuration(duration + 1);
                 }
             }
         }
@@ -117,13 +111,13 @@ public class PatternManager {
     }
 
     private static List<ComplexContainer> distributeWealth(List<ComplexContainer> list, ComplexContainer donorContainer) {
-        while (donorContainer.getDuration() > 0) {
+        while (donorContainer.getDuration() > getMaxStepSize()) {
             if (list.stream().anyMatch(c -> c.getDuration() < getMaxStepSize())) {
-                for (ComplexContainer cc : list.stream().sorted(Comparator.comparing(ComplexContainer::getDuration)).collect(Collectors.toList())) {
+                for (ComplexContainer cc : list.stream().filter(c -> c.getDuration() < getMaxStepSize()).sorted(Comparator.comparing(ComplexContainer::getDuration)).collect(Collectors.toList())) {
                     int duration = donorContainer.getDuration();
-                    if (duration > 0 && duration < getMaxStepSize()) {
+                    if (duration > 0 && duration > getMaxStepSize()) {
                         donorContainer.setDuration(duration - 1);
-                        cc.setDuration(duration + 1);
+                        cc.setDuration(cc.getDuration() + 1);
                     }
                 }
             } else {
