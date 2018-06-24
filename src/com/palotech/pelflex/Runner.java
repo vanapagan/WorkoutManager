@@ -15,10 +15,13 @@ public class Runner {
         }
         */
 
-        System.out.println(new ComplexStep(ComplexStep.Type.MAX, 3, 0.50d));
+        // System.out.println(new ComplexStep(ComplexStep.Type.MAX, 3, 0.50d));
 
         // TODO Mustri genereerimine
-        PatternManager.generatePattern(57);
+        for (int i = 0; i < 10; i++) {
+            PatternManager.generatePattern(57);
+        }
+
 
     }
 

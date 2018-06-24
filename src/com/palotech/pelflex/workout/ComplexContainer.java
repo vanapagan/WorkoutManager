@@ -42,7 +42,16 @@ public class ComplexContainer {
         this.duration = duration;
     }
 
+    public ComplexContainer getCopyOf() {
+        return new ComplexContainer(this.type, this.duration);
+    }
+
     public void setType(ComplexStep.Type type) {
         this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(duration);
     }
 }
