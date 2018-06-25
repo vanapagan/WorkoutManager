@@ -32,7 +32,7 @@ public class PatternManager {
     private List<ComplexContainer> generateStepContainersList() {
         // TODO Mitmeks tykiks (sammupesaks) me kestuse jagame
 
-        int denominator = metadata.getDenominator();
+        int denominator = metadata.getDenominator(duration);
 
         // TODO Kui (duration / denominator) < minStepSize, denominator - 1
 
