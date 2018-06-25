@@ -6,10 +6,16 @@ import java.util.stream.Collectors;
 
 public class Pattern {
 
+    private PatternMetadata patternMetadata;
     private List<ComplexStep> compStepList;
 
-    public Pattern(List<ComplexStep> compStepList) {
+    public Pattern(PatternMetadata patternMetadata, List<ComplexStep> compStepList) {
+        this.patternMetadata = patternMetadata;
         this.compStepList = compStepList;
+    }
+
+    public PatternMetadata getPatternMetadata() {
+        return patternMetadata;
     }
 
     public List<ComplexStep> getCompStepList() {

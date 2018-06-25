@@ -19,8 +19,8 @@ public class PatternManager {
 
         List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
 
-        Pattern pattern = new Pattern(stepsList);
-        System.out.println(pattern);
+        Pattern pattern = new Pattern(metadata, stepsList);
+        // System.out.println(pattern);
 
         // TODO Me peame siinkohal patterni raskusastet ka kuidagi kontrollima (inkrementeerima teatud perioodi tagant)
         // TODO pattern-i raskusastme hindamine
@@ -29,31 +29,13 @@ public class PatternManager {
         return pattern;
     }
 
-    private double getDifficultyCoefficient(Pattern pattern) {
-        // TODO 1. Kestus
-        // TODO 2. Flexide osakaal harjutuses
-        // TODO 3. ComplexSteppide arv
-        // TODO 4. MAX ComplexStep flex/relax osakaal
-        // TODO 5. Vaheldusrikkuse hinnang ehk amplituudide summa
-
-        double duration = pattern.getDuration();
-        double flexPercentage = pattern.getFlexPercentage();
-        int noOfSteps = pattern.getCompStepList().size();
-        double maxFlexOverRelax = pattern.getAvgMaxFlexOverRelax();
-        double variabilityCoefficient = pattern.getVariabilityCoefficient();
-
-        // System.out.println(duration + " " + duration * (flexPercentage * 0.5d) * (noOfSteps - getDenominator() > 1 ? noOfSteps - getDenominator() : 1) * maxFlexOverRelax * (1 + variabilityCoefficient) + " " + pattern);
-
-        return (duration * flexPercentage);
-                //+ (duration * 0.10d * (noOfSteps - getDenominator() > 0 ? noOfSteps - getDenominator() : 1))
-                //   * (duration * 0.10d * maxFlexOverRelax)
-                //+ (duration * 0.10d * (1 + variabilityCoefficient));
-    }
-
     private List<ComplexContainer> generateStepContainersList() {
         // TODO Mitmeks tykiks (sammupesaks) me kestuse jagame
 
         int denominator = metadata.getDenominator();
+
+        // TODO Kui (duration / denominator) < minStepSize, denominator - 1
+
         List<ComplexContainer> containerList = new ArrayList<>();
         for (int i = 0; i < denominator; i++) {
             ComplexContainer cc = new ComplexContainer(ComplexStep.Type.UNKNOWN, 0);
@@ -120,7 +102,7 @@ public class PatternManager {
 
     private void fillUnderspill(List<ComplexContainer> list, Predicate<ComplexContainer> underspillPredicate) {
         Optional<ComplexContainer> underspillContainerOpt = list.stream().filter(underspillPredicate).findAny();
-        if (underspillContainerOpt.isPresent()) {
+        if (underspillContainerOpt.isPresent() && list.stream().filter(c -> c.getDuration() > metadata.getMax()).findAny().isPresent()) {
             ComplexContainer underspillContainer = underspillContainerOpt.get();
             revivePatientUntilHealthy(list, underspillContainer);
             fillUnderspill(list, underspillPredicate);
@@ -188,5 +170,25 @@ public class PatternManager {
         return duration > 0 ? distributeWealth(list, duration) : list;
     }
 
+    private double getDifficultyCoefficient(Pattern pattern) {
+        // TODO 1. Kestus
+        // TODO 2. Flexide osakaal harjutuses
+        // TODO 3. ComplexSteppide arv
+        // TODO 4. MAX ComplexStep flex/relax osakaal
+        // TODO 5. Vaheldusrikkuse hinnang ehk amplituudide summa
+
+        double duration = pattern.getDuration();
+        double flexPercentage = pattern.getFlexPercentage();
+        int noOfSteps = pattern.getCompStepList().size();
+        double maxFlexOverRelax = pattern.getAvgMaxFlexOverRelax();
+        double variabilityCoefficient = pattern.getVariabilityCoefficient();
+
+        // System.out.println(duration + " " + duration * (flexPercentage * 0.5d) * (noOfSteps - getDenominator() > 1 ? noOfSteps - getDenominator() : 1) * maxFlexOverRelax * (1 + variabilityCoefficient) + " " + pattern);
+
+        return (duration * flexPercentage);
+        //+ (duration * 0.10d * (noOfSteps - getDenominator() > 0 ? noOfSteps - getDenominator() : 1))
+        //   * (duration * 0.10d * maxFlexOverRelax)
+        //+ (duration * 0.10d * (1 + variabilityCoefficient));
+    }
 
 }

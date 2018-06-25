@@ -9,6 +9,7 @@ public class Workout {
     private int Id;
     private int userId;
     private Variation variation;
+    private PatternMetadata patternMetadata;
     private Pattern pattern;
     private double duration;
     private double handicap;

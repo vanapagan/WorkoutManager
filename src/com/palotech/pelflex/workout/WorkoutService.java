@@ -42,15 +42,16 @@ public class WorkoutService {
         Optional<Exercise> nextPlaceOptional = sortedLeaderboard.stream().filter(superFilter).findFirst();
         Workout.Variation nextWorkoutVariation = nextPlaceOptional.isPresent() ? nextPlaceOptional.get().getName() : Workout.Variation.NORMAL;
 
-        PatternMetadata metadata = getDefaultPatternMetadata(userId, nextWorkoutVariation);
-        Workout w = composeNewWorkout(userId, nextWorkoutVariation, metadata);
+        //PatternMetadata metadata = getDefaultPatternMetadata(userId, nextWorkoutVariation);
+        Workout w = composeNewWorkout(userId, nextWorkoutVariation);
 
         return w;
     }
 
-    public static Workout composeNewWorkout(int userId, Workout.Variation variation, PatternMetadata metadata) {
+    public static Workout composeNewWorkout(int userId, Workout.Variation variation) {
         Workout lastWorkout = getWorkout(userId, variation);
 
+        Pattern lastPattern = lastWorkout.getPattern();
         double lastHandicap = lastWorkout.getHandicap();
         double lastIncPercentage = lastWorkout.getIncPercentage();
         double lastDecPercentage = lastWorkout.getDecPercentage();
@@ -78,7 +79,10 @@ public class WorkoutService {
 
         maxDuration = duration > maxDuration ? duration : maxDuration;
 
-        PatternManager patternManager = new PatternManager(new Double(duration).intValue(), metadata);
+        PatternMetadata lastPatternMetadata = lastPattern.getPatternMetadata();
+        PatternMetadata patternMetadata = new PatternMetadata(new Double(duration).intValue(), lastPatternMetadata.getDenominator(), lastPatternMetadata.getMin(), lastPatternMetadata.getMax());
+
+        PatternManager patternManager = new PatternManager(new Double(duration).intValue(), patternMetadata);
         Pattern pattern = patternManager.generatePattern();
 
         System.out.println(lastWorkout.getId() + " " + maxDuration + " - " + duration + " - " + handicap + " percentage: " + incPercentage + " --- " + variation);
@@ -112,17 +116,18 @@ public class WorkoutService {
     }
 
     public static Workout getDefaultWorkout(int userId, Workout.Variation variation) {
+        PatternMetadata patternMetadata = getDefaultPatternMetadata(userId, variation);
         return variation == Workout.Variation.NORMAL ?
-                new Workout(userId, Workout.Variation.NORMAL, 56, new PatternManager(56, getDefaultPatternMetadata(userId, variation)).generatePattern(),0.0d, 0.0d, 1, 56)
+                new Workout(userId, Workout.Variation.NORMAL, 56, new PatternManager(56, patternMetadata).generatePattern(),0.0d, 0.0d, 0.01d, 56)
                 :
-                new Workout(userId, Workout.Variation.FAST, 30, new PatternManager(28, getDefaultPatternMetadata(userId, variation)).generatePattern(), 0.0, 0.0, 0.01d, 30);
+                new Workout(userId, Workout.Variation.FAST, 32, new PatternManager(32, patternMetadata).generatePattern(), 0.0, 0.0d, 0.01d, 30);
     }
 
     public static PatternMetadata getDefaultPatternMetadata(int userId, Workout.Variation variation) {
         return variation == Workout.Variation.NORMAL ?
-                new PatternMetadata(8, 4, 10)
+                new PatternMetadata(56, 8, 4, 10)
                 :
-                new PatternMetadata(5, 3, 4);
+                new PatternMetadata(32, 8, 4, 4);
     }
 
     public static List<Workout> getWorkoutList() {
