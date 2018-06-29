@@ -1,6 +1,6 @@
 package com.palotech.pelflex.workout;
 
-public class ExerciseMetadata {
+public class Metadata {
 
     private Workout.Variation variation;
     private double duration;
@@ -10,7 +10,7 @@ public class ExerciseMetadata {
     private double incPercentage;
     private double decPercentage;
 
-    public ExerciseMetadata(Workout.Variation variation, double duration, double maxDuration, double handicap, double incPercentage, double decPercentage, int defaultDenominator, int min, int max) {
+    public Metadata(Workout.Variation variation, double duration, double maxDuration, double handicap, double incPercentage, double decPercentage, int defaultDenominator, int min, int max) {
         this.variation = variation;
         this.duration = duration;
         this.maxDuration = maxDuration;

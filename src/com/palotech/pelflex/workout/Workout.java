@@ -8,19 +8,18 @@ public class Workout {
 
     private int Id;
     private int userId;
-    private ExerciseMetadata exerciseMetadata;
-    private Pattern pattern;
+    private Metadata metadata;
     private LocalDateTime date;
 
-    public Workout(int userId, ExerciseMetadata exerciseMetadata) {
+    public Workout(int userId, Metadata metadata) {
         this.Id = ++idCount;
         this.userId = userId;
-        this.exerciseMetadata = exerciseMetadata;
+        this.metadata = metadata;
         this.date = LocalDateTime.now();
     }
 
-    public ExerciseMetadata getExerciseMetadata() {
-        return exerciseMetadata;
+    public Metadata getMetadata() {
+        return metadata;
     }
 
     public int getId() {

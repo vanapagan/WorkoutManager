@@ -19,7 +19,7 @@ public class WorkoutService {
     }
 
     public static Workout getNewWorkout(int userId, Predicate<Exercise>... filters) {
-        Map<Workout.Variation, Long> countedWorkoutsMap = workoutList.stream().filter(w -> w.getUserId() == userId).collect(Collectors.groupingBy(w -> w.getExerciseMetadata().getVariation(), Collectors.counting()));
+        Map<Workout.Variation, Long> countedWorkoutsMap = workoutList.stream().filter(w -> w.getUserId() == userId).collect(Collectors.groupingBy(w -> w.getMetadata().getVariation(), Collectors.counting()));
 
         List<Exercise> sortedLeaderboard = new ArrayList<>();
         countedWorkoutsMap.entrySet().stream().forEachOrdered(e -> sortedLeaderboard.add(new Exercise(e.getKey(), e.getValue())));
@@ -46,16 +46,16 @@ public class WorkoutService {
     public static Workout composeNewWorkout(int userId, Workout.Variation variation) {
         Workout lastWorkout = getWorkout(userId, variation);
 
-        ExerciseMetadata lastExerciseMetadata = lastWorkout.getExerciseMetadata();
+        Metadata lastMetadata = lastWorkout.getMetadata();
 
-        double lastHandicap = lastExerciseMetadata.getHandicap();
-        double lastIncPercentage = lastExerciseMetadata.getIncPercentage();
-        double lastDecPercentage = lastExerciseMetadata.getDecPercentage();
-        double maxDuration = lastExerciseMetadata.getMaxDuration();
+        double lastHandicap = lastMetadata.getHandicap();
+        double lastIncPercentage = lastMetadata.getIncPercentage();
+        double lastDecPercentage = lastMetadata.getDecPercentage();
+        double maxDuration = lastMetadata.getMaxDuration();
         double handicap = lastHandicap;
-        int lastDenominator = lastExerciseMetadata.getPattern().getPatternMetadata().getDenominator();
-        int lastMin = lastExerciseMetadata.getPattern().getPatternMetadata().getMin();
-        int lastMax = lastExerciseMetadata.getPattern().getPatternMetadata().getMax();
+        int lastDenominator = lastMetadata.getPattern().getPatternMetadata().getDenominator();
+        int lastMin = lastMetadata.getPattern().getPatternMetadata().getMin();
+        int lastMax = lastMetadata.getPattern().getPatternMetadata().getMax();
 
         double incPercentage = lastIncPercentage;
         double decPercentage = lastDecPercentage;
@@ -76,10 +76,11 @@ public class WorkoutService {
 
         maxDuration = duration > maxDuration ? duration : maxDuration;
 
-        ExerciseMetadata exerciseMetadata = new ExerciseMetadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, lastDenominator, lastMin, lastMax);
+        // TODO neid peaks siin veel natuke paremini grupeerima, et konstruktorisse nii palju parameetreid ei l2heks
+        Metadata metadata = new Metadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, lastDenominator, lastMin, lastMax);
 
         System.out.println(lastWorkout.getId() + " " + maxDuration + " - " + duration + " - " + handicap + " percentage: " + incPercentage + " --- " + variation);
-        return new Workout(userId, exerciseMetadata);
+        return new Workout(userId, metadata);
     }
 
     public static <T> Predicate<T> combineFilters(Predicate<T>... predicates) {
@@ -102,7 +103,7 @@ public class WorkoutService {
     public static Workout getWorkout(int userId, Workout.Variation variation) {
         Optional<Workout> lastWorkoutOpt = workoutList
                 .stream()
-                .filter(w -> variation == w.getExerciseMetadata().getVariation())
+                .filter(w -> variation == w.getMetadata().getVariation())
                 .sorted(Comparator.comparing(Workout::getDate).reversed())
                 .findFirst();
         return lastWorkoutOpt.isPresent() ? lastWorkoutOpt.get() : getDefaultWorkout(userId, variation);
@@ -125,9 +126,9 @@ public class WorkoutService {
         int min = 4;
         int max = 10;
 
-        ExerciseMetadata exerciseMetadata = new ExerciseMetadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, denominator, min, max);
+        Metadata metadata = new Metadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, denominator, min, max);
 
-        return new Workout(userId, exerciseMetadata);
+        return new Workout(userId, metadata);
     }
 
     private static Workout getDefaultFastWorkout() {
@@ -143,9 +144,9 @@ public class WorkoutService {
         int min = 4;
         int max = 4;
 
-        ExerciseMetadata exerciseMetadata = new ExerciseMetadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, denominator, min, max);
+        Metadata metadata = new Metadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, denominator, min, max);
 
-        return new Workout(userId, exerciseMetadata);
+        return new Workout(userId, metadata);
     }
 
     public static List<Workout> getWorkoutList() {
