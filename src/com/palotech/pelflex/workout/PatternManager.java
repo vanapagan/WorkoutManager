@@ -6,16 +6,8 @@ import java.util.stream.Collectors;
 
 public class PatternManager {
 
-    private int duration;
-    private PatternMetadata metadata;
-
-    public PatternManager(int duration, PatternMetadata metadata) {
-        this.duration = duration;
-        this.metadata = metadata;
-    }
-
-    public Pattern generatePattern() {
-        List<ComplexContainer> containersList = generateStepContainersList();
+    public static Pattern generatePattern(PatternMetadata metadata) {
+        List<ComplexContainer> containersList = generateStepContainersList(metadata);
 
         List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
 
@@ -29,10 +21,11 @@ public class PatternManager {
         return pattern;
     }
 
-    private List<ComplexContainer> generateStepContainersList() {
+    private static List<ComplexContainer> generateStepContainersList(PatternMetadata metadata) {
         // TODO Mitmeks tykiks (sammupesaks) me kestuse jagame
 
-        int denominator = metadata.getDenominator(duration);
+        int duration = metadata.getDuration();
+        int denominator = metadata.getDenominator();
 
         // TODO Kui (duration / denominator) < minStepSize, denominator - 1
 
@@ -73,11 +66,11 @@ public class PatternManager {
         Predicate<ComplexContainer> overspillPredicate = c -> c.getDuration() > maxStepSize;
 
         // TODO deal with the overspill
-        distributeOverspill(containerList, overspillPredicate);
+        distributeOverspill(containerList, overspillPredicate, metadata);
 
         // TODO deal with the underspill
         Predicate<ComplexContainer> underspillPredicate = c -> c.getDuration() < minStepSize;
-        fillUnderspill(containerList, underspillPredicate);
+        fillUnderspill(containerList, underspillPredicate, metadata);
 
         // TODO fill in missing types
         containerList
@@ -100,29 +93,29 @@ public class PatternManager {
         return containerList;
     }
 
-    private void fillUnderspill(List<ComplexContainer> list, Predicate<ComplexContainer> underspillPredicate) {
+    private static void fillUnderspill(List<ComplexContainer> list, Predicate<ComplexContainer> underspillPredicate, PatternMetadata metadata) {
         Optional<ComplexContainer> underspillContainerOpt = list.stream().filter(underspillPredicate).findAny();
-        if (underspillContainerOpt.isPresent() && list.stream().filter(c -> c.getDuration() > metadata.getMax()).findAny().isPresent()) {
+        if (underspillContainerOpt.isPresent() && list.stream().anyMatch(c -> c.getDuration() > metadata.getMax())) {
             ComplexContainer underspillContainer = underspillContainerOpt.get();
-            revivePatientUntilHealthy(list, underspillContainer);
-            fillUnderspill(list, underspillPredicate);
+            revivePatientUntilHealthy(list, underspillContainer, metadata);
+            fillUnderspill(list, underspillPredicate, metadata);
         } else {
             return;
         }
     }
 
-    private void distributeOverspill(List<ComplexContainer> list, Predicate<ComplexContainer> overspillPredicate) {
+    private static void distributeOverspill(List<ComplexContainer> list, Predicate<ComplexContainer> overspillPredicate, PatternMetadata metadata) {
         Optional<ComplexContainer> overspillContainerOpt = list.stream().filter(overspillPredicate).findAny();
         if (overspillContainerOpt.isPresent()) {
             ComplexContainer overspillContainer = overspillContainerOpt.get();
-            distributeWealth(list, overspillContainer);
-            distributeOverspill(list, overspillPredicate);
+            distributeWealth(list, overspillContainer, metadata);
+            distributeOverspill(list, overspillPredicate, metadata);
         } else {
             return;
         }
     }
 
-    private List<ComplexContainer> revivePatientUntilHealthy(List<ComplexContainer> list, ComplexContainer patientContainer) {
+    private static List<ComplexContainer> revivePatientUntilHealthy(List<ComplexContainer> list, ComplexContainer patientContainer, PatternMetadata metadata) {
         while (patientContainer.getDuration() < metadata.getMin() && list.stream().anyMatch(c -> (c.getDuration() - 1) > metadata.getMin())) {
             Optional<ComplexContainer> donorOptional = list
                     .stream()
@@ -142,7 +135,7 @@ public class PatternManager {
         return list;
     }
 
-    private List<ComplexContainer> distributeWealth(List<ComplexContainer> list, ComplexContainer donorContainer) {
+    private static List<ComplexContainer> distributeWealth(List<ComplexContainer> list, ComplexContainer donorContainer, PatternMetadata metadata) {
         while (donorContainer.getDuration() > metadata.getMax()) {
             if (list.stream().anyMatch(c -> c.getDuration() < metadata.getMax())) {
                 for (ComplexContainer cc : list.stream().filter(c -> c.getDuration() < metadata.getMax()).sorted(Comparator.comparing(ComplexContainer::getDuration)).collect(Collectors.toList())) {
@@ -160,7 +153,7 @@ public class PatternManager {
         return list;
     }
 
-    private List<ComplexContainer> distributeWealth(List<ComplexContainer> list, int duration) {
+    private static List<ComplexContainer> distributeWealth(List<ComplexContainer> list, int duration) {
         for (ComplexContainer cc : list) {
             if (duration > 0) {
                 duration -= 1;
@@ -170,7 +163,7 @@ public class PatternManager {
         return duration > 0 ? distributeWealth(list, duration) : list;
     }
 
-    private double getDifficultyCoefficient(Pattern pattern) {
+    private static double getDifficultyCoefficient(Pattern pattern) {
         // TODO 1. Kestus
         // TODO 2. Flexide osakaal harjutuses
         // TODO 3. ComplexSteppide arv

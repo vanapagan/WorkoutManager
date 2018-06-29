@@ -8,43 +8,19 @@ public class Workout {
 
     private int Id;
     private int userId;
-    private Variation variation;
-    private PatternMetadata patternMetadata;
+    private ExerciseMetadata exerciseMetadata;
     private Pattern pattern;
-    private double duration;
-    private double handicap;
-    private double incPercentage;
-    private double decPercentage;
-    private double maxDuration;
     private LocalDateTime date;
 
-    public Workout(int userId, Variation variation, double duration, Pattern pattern, double handicap, double incPercentage, double decPercentage, double maxDuration) {
+    public Workout(int userId, ExerciseMetadata exerciseMetadata) {
         this.Id = ++idCount;
         this.userId = userId;
-        this.variation = variation;
-        this.duration = duration;
-        this.pattern = pattern;
-        this.handicap = handicap;
-        this.incPercentage = incPercentage;
-        this.decPercentage = decPercentage;
-        this.maxDuration = maxDuration;
+        this.exerciseMetadata = exerciseMetadata;
         this.date = LocalDateTime.now();
     }
 
-    public double getMaxDuration() {
-        return maxDuration;
-    }
-
-    public Variation getVariation() {
-        return variation;
-    }
-
-    public double getDecPercentage() {
-        return decPercentage;
-    }
-
-    public double getIncPercentage() {
-        return incPercentage;
+    public ExerciseMetadata getExerciseMetadata() {
+        return exerciseMetadata;
     }
 
     public int getId() {
@@ -53,18 +29,6 @@ public class Workout {
 
     public int getUserId() {
         return userId;
-    }
-
-    public double getDuration() {
-        return duration;
-    }
-
-    public Pattern getPattern() {
-        return pattern;
-    }
-
-    public double getHandicap() {
-        return handicap;
     }
 
     public LocalDateTime getDate() {

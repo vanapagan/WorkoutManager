@@ -2,17 +2,32 @@ package com.palotech.pelflex.workout;
 
 public class PatternMetadata {
 
+    private int duration;
     private int denominator;
     private int min;
     private int max;
 
-    public PatternMetadata(int defaultDenominator, int min, int max) {
+    public PatternMetadata(int duration, int defaultDenominator, int min, int max) {
+        this.duration = duration;
         this.denominator = defaultDenominator;
         this.min = min;
         this.max = max;
+        init();
     }
 
-    public int getDenominator(int duration) {
+    public int getDuration() {
+        return duration;
+    }
+
+    private void init() {
+        denominator = calculateSufficientDenominator();
+    }
+
+    public int getDenominator() {
+        return denominator;
+    }
+
+    private int calculateSufficientDenominator() {
         return calculateSufficientDenominator(duration, denominator, min);
     }
 
