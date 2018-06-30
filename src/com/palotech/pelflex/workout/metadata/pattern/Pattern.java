@@ -1,6 +1,6 @@
-package com.palotech.pelflex.workout.pattern;
+package com.palotech.pelflex.workout.metadata.pattern;
 
-import com.palotech.pelflex.workout.pattern.step.ComplexStep;
+import com.palotech.pelflex.workout.metadata.pattern.step.ComplexStep;
 
 import java.util.List;
 import java.util.OptionalDouble;

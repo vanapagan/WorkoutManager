@@ -1,6 +1,4 @@
-package com.palotech.pelflex.workout.pattern;
-
-import com.palotech.pelflex.workout.pattern.Pattern;
+package com.palotech.pelflex.workout.metadata.pattern;
 
 import java.util.ArrayList;
 import java.util.List;

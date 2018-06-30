@@ -1,4 +1,4 @@
-package com.palotech.pelflex.workout.feedback;
+package com.palotech.pelflex.workout.metadata.feedback;
 
 import java.util.ArrayList;
 import java.util.List;

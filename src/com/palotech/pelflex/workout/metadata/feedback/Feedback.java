@@ -1,8 +1,6 @@
-package com.palotech.pelflex.workout.feedback;
+package com.palotech.pelflex.workout.metadata.feedback;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class Feedback {
 

@@ -1,6 +1,10 @@
 package com.palotech.pelflex.workout;
 
-import com.palotech.pelflex.workout.feedback.FeedbackService;
+import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
+import com.palotech.pelflex.workout.metadata.Metadata;
+import com.palotech.pelflex.workout.metadata.pattern.Pattern;
+import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
+import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -16,30 +20,30 @@ public class WorkoutService {
     private static List<Workout> workoutList = new ArrayList<>();
 
     public static Workout getNewWorkoutThatIsNotPrevious(int userId, Workout.Variation previousVariation) {
-        Predicate<Exercise> notPreviousVariation = p -> previousVariation != p.getName();
+        Predicate<SuggestedWorkout> notPreviousVariation = p -> previousVariation != p.getName();
         return getNewWorkout(userId, notPreviousVariation);
     }
 
-    public static Workout getNewWorkout(int userId, Predicate<Exercise>... filters) {
+    public static Workout getNewWorkout(int userId, Predicate<SuggestedWorkout>... filters) {
         Map<Workout.Variation, Long> countedWorkoutsMap = workoutList.stream().filter(w -> w.getUserId() == userId).collect(Collectors.groupingBy(w -> w.getMetadata().getVariation(), Collectors.counting()));
 
-        List<Exercise> sortedLeaderboard = new ArrayList<>();
-        countedWorkoutsMap.entrySet().stream().forEachOrdered(e -> sortedLeaderboard.add(new Exercise(e.getKey(), e.getValue())));
+        List<SuggestedWorkout> sortedLeaderboard = new ArrayList<>();
+        countedWorkoutsMap.entrySet().stream().forEachOrdered(e -> sortedLeaderboard.add(new SuggestedWorkout(e.getKey(), e.getValue())));
 
         List<Workout.Variation> variationList = getAvailableVariations(userId);
-        List<Exercise> missingVariationsList = new ArrayList<>();
+        List<SuggestedWorkout> missingVariationsList = new ArrayList<>();
         for (Workout.Variation v : variationList) {
             if (sortedLeaderboard.stream().noneMatch(p -> p.getName() == v)) {
-                missingVariationsList.add(new Exercise(v, 0));
+                missingVariationsList.add(new SuggestedWorkout(v, 0));
             }
         }
 
         sortedLeaderboard.addAll(missingVariationsList);
-        sortedLeaderboard.sort(Comparator.comparing(Exercise::getNoOfOccurs));
+        sortedLeaderboard.sort(Comparator.comparing(SuggestedWorkout::getNoOfOccurs));
 
-        Predicate<Exercise> superFilter = combineFilters(filters);
+        Predicate<SuggestedWorkout> superFilter = combineFilters(filters);
 
-        Optional<Exercise> nextPlaceOptional = sortedLeaderboard.stream().filter(superFilter).findFirst();
+        Optional<SuggestedWorkout> nextPlaceOptional = sortedLeaderboard.stream().filter(superFilter).findFirst();
         Workout.Variation nextWorkoutVariation = nextPlaceOptional.isPresent() ? nextPlaceOptional.get().getName() : Workout.Variation.NORMAL;
 
         return composeNewWorkout(userId, nextWorkoutVariation);
@@ -79,7 +83,10 @@ public class WorkoutService {
         maxDuration = duration > maxDuration ? duration : maxDuration;
 
         // TODO neid peaks siin veel natuke paremini grupeerima, et konstruktorisse nii palju parameetreid ei l2heks
-        Metadata metadata = new Metadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, lastDenominator, lastMin, lastMax);
+        int durationAsInt = new Double(duration).intValue();
+        PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, lastDenominator, lastMin, lastMax);
+        Pattern pattern = PatternManager.generatePattern(patternMetadata);
+        Metadata metadata = new Metadata(variation, maxDuration, handicap, incPercentage, decPercentage, pattern);
 
         System.out.println(lastWorkout.getId() + " " + maxDuration + " - " + duration + " - " + handicap + " percentage: " + incPercentage + " --- " + variation);
 
@@ -130,7 +137,10 @@ public class WorkoutService {
         int min = 4;
         int max = 10;
 
-        Metadata metadata = new Metadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, denominator, min, max);
+        int durationAsInt = new Double(duration).intValue();
+        PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
+        Pattern pattern = PatternManager.generatePattern(patternMetadata);
+        Metadata metadata = new Metadata(variation, maxDuration, handicap, incPercentage, decPercentage, pattern);
 
         return new Workout(userId, metadata);
     }
@@ -148,7 +158,10 @@ public class WorkoutService {
         int min = 4;
         int max = 4;
 
-        Metadata metadata = new Metadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, denominator, min, max);
+        int durationAsInt = new Double(duration).intValue();
+        PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
+        Pattern pattern = PatternManager.generatePattern(patternMetadata);
+        Metadata metadata = new Metadata(variation, maxDuration, handicap, incPercentage, decPercentage, pattern);
 
         return new Workout(userId, metadata);
     }

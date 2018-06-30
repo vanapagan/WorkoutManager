@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.metadata.Metadata;
+
 import java.time.LocalDateTime;
 
 public class Workout {

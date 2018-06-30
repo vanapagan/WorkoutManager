@@ -1,4 +1,4 @@
-package com.palotech.pelflex.workout.pattern.step;
+package com.palotech.pelflex.workout.metadata.pattern.step;
 
 public class ComplexContainer {
 

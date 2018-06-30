@@ -1,4 +1,4 @@
-package com.palotech.pelflex.workout.pattern;
+package com.palotech.pelflex.workout.metadata.pattern;
 
 public class PatternMetadata {
 

@@ -1,24 +1,21 @@
-package com.palotech.pelflex.workout;
+package com.palotech.pelflex.workout.metadata;
 
-import com.palotech.pelflex.workout.pattern.Pattern;
-import com.palotech.pelflex.workout.pattern.PatternManager;
-import com.palotech.pelflex.workout.pattern.PatternMetadata;
+import com.palotech.pelflex.workout.Workout;
+import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 
 public class Metadata {
 
     private Workout.Variation variation;
-    private double duration;
     private double maxDuration;
     private Pattern pattern;
     private double handicap;
     private double incPercentage;
     private double decPercentage;
 
-    public Metadata(Workout.Variation variation, double duration, double maxDuration, double handicap, double incPercentage, double decPercentage, int defaultDenominator, int min, int max) {
+    public Metadata(Workout.Variation variation, double maxDuration, double handicap, double incPercentage, double decPercentage, Pattern pattern) {
         this.variation = variation;
-        this.duration = duration;
         this.maxDuration = maxDuration;
-        this.pattern = PatternManager.generatePattern(new PatternMetadata(new Double(duration).intValue(), defaultDenominator, min, max));
+        this.pattern = pattern;
         this.handicap = handicap;
         this.incPercentage = incPercentage;
         this.decPercentage = decPercentage;
