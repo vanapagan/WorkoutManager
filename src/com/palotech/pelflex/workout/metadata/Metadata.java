@@ -6,19 +6,13 @@ import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 public class Metadata {
 
     private Workout.Variation variation;
-    private double maxDuration;
+    private Difficulty difficulty;
     private Pattern pattern;
-    private double handicap;
-    private double incPercentage;
-    private double decPercentage;
 
-    public Metadata(Workout.Variation variation, double maxDuration, double handicap, double incPercentage, double decPercentage, Pattern pattern) {
+    public Metadata(Workout.Variation variation, Difficulty difficulty, Pattern pattern) {
         this.variation = variation;
-        this.maxDuration = maxDuration;
+        this.difficulty = difficulty;
         this.pattern = pattern;
-        this.handicap = handicap;
-        this.incPercentage = incPercentage;
-        this.decPercentage = decPercentage;
     }
 
     public Workout.Variation getVariation() {
@@ -29,20 +23,8 @@ public class Metadata {
         return pattern;
     }
 
-    public double getMaxDuration() {
-        return maxDuration;
-    }
-
-    public double getHandicap() {
-        return handicap;
-    }
-
-    public double getIncPercentage() {
-        return incPercentage;
-    }
-
-    public double getDecPercentage() {
-        return decPercentage;
+    public Difficulty getDifficulty() {
+        return difficulty;
     }
 
     public enum Accumulator {

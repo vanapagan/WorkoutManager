@@ -1,5 +1,6 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
@@ -54,10 +55,10 @@ public class WorkoutService {
 
         Metadata lastMetadata = lastWorkout.getMetadata();
 
-        double lastHandicap = lastMetadata.getHandicap();
-        double lastIncPercentage = lastMetadata.getIncPercentage();
-        double lastDecPercentage = lastMetadata.getDecPercentage();
-        double maxDuration = lastMetadata.getMaxDuration();
+        double lastHandicap = lastMetadata.getDifficulty().getHandicap();
+        double lastIncPercentage = lastMetadata.getDifficulty().getIncPercentage();
+        double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
+        double maxDuration = lastMetadata.getDifficulty().getMaxDuration();
         double handicap = lastHandicap;
         int lastDenominator = lastMetadata.getPattern().getPatternMetadata().getDenominator();
         int lastMin = lastMetadata.getPattern().getPatternMetadata().getMin();
@@ -83,10 +84,12 @@ public class WorkoutService {
         maxDuration = duration > maxDuration ? duration : maxDuration;
 
         // TODO neid peaks siin veel natuke paremini grupeerima, et konstruktorisse nii palju parameetreid ei l2heks
+        Difficulty difficulty = new Difficulty(maxDuration, handicap, incPercentage, decPercentage);
+
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, lastDenominator, lastMin, lastMax);
         Pattern pattern = PatternManager.generatePattern(patternMetadata);
-        Metadata metadata = new Metadata(variation, maxDuration, handicap, incPercentage, decPercentage, pattern);
+        Metadata metadata = new Metadata(variation, difficulty, pattern);
 
         System.out.println(lastWorkout.getId() + " " + maxDuration + " - " + duration + " - " + handicap + " percentage: " + incPercentage + " --- " + variation);
 
@@ -137,10 +140,12 @@ public class WorkoutService {
         int min = 4;
         int max = 10;
 
+        Difficulty difficulty = new Difficulty(maxDuration, handicap, incPercentage, decPercentage);
+
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
         Pattern pattern = PatternManager.generatePattern(patternMetadata);
-        Metadata metadata = new Metadata(variation, maxDuration, handicap, incPercentage, decPercentage, pattern);
+        Metadata metadata = new Metadata(variation, difficulty, pattern);
 
         return new Workout(userId, metadata);
     }
@@ -158,10 +163,12 @@ public class WorkoutService {
         int min = 4;
         int max = 4;
 
+        Difficulty difficulty = new Difficulty(maxDuration, handicap, incPercentage, decPercentage);
+
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
         Pattern pattern = PatternManager.generatePattern(patternMetadata);
-        Metadata metadata = new Metadata(variation, maxDuration, handicap, incPercentage, decPercentage, pattern);
+        Metadata metadata = new Metadata(variation, difficulty, pattern);
 
         return new Workout(userId, metadata);
     }
