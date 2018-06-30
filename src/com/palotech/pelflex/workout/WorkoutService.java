@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.exercise.template.Kegel;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
@@ -18,47 +20,55 @@ public class WorkoutService {
 
     private static List<Workout> workoutList = new ArrayList<>();
 
-    public static Workout getNewWorkoutThatIsNotPrevious(int userId, Workout.Variation previousVariation) {
-        Predicate<SuggestedWorkout> notPreviousVariation = p -> previousVariation != p.getName();
-        return composeNewWorkout(userId, notPreviousVariation);
+    public static Workout getNewWorkoutThatIsNotPrevious(int userId, ExerciseTemplate previousExerciseTemplate) {
+        Predicate<ExerciseTemplate> notPreviousExerciseTemplate = p -> previousExerciseTemplate.getExercise() != p.getExercise() && previousExerciseTemplate.getVariation() != p.getVariation();
+        return composeNewWorkout(userId, notPreviousExerciseTemplate);
     }
 
-    public static Workout composeNewWorkout(int userId, Predicate<SuggestedWorkout>... filters) {
-        Map<Workout.Variation, Long> countedWorkoutsMap = workoutList.stream().filter(w -> w.getUserId() == userId).collect(Collectors.groupingBy(w -> w.getMetadata().getVariation(), Collectors.counting()));
+    public static Workout composeNewWorkout(int userId, Predicate<ExerciseTemplate>... filters) {
+        // TODO 1) Esmalt leiame k6ige v2hem sooritatud harjutuse
+        ExerciseTemplate nextExercise = getNextSuggestedExercise(userId, filters);
 
-        List<SuggestedWorkout> sortedLeaderboard = new ArrayList<>();
-        countedWorkoutsMap.entrySet().stream().forEachOrdered(e -> sortedLeaderboard.add(new SuggestedWorkout(e.getKey(), e.getValue())));
+        return composeWorkout(userId, nextExercise);
+    }
 
-        List<Workout.Variation> variationList = getAvailableVariations(userId);
-        List<SuggestedWorkout> missingVariationsList = new ArrayList<>();
-        for (Workout.Variation v : variationList) {
-            if (sortedLeaderboard.stream().noneMatch(p -> p.getName() == v)) {
-                missingVariationsList.add(new SuggestedWorkout(v, 0));
+    private static ExerciseTemplate getNextSuggestedExercise(int userId, Predicate<ExerciseTemplate>... filters) {
+        List<SuggestedWorkout> sortedExercisesLeaderboard = new ArrayList<>();
+        Map<SuggestedExercise, Long> countedWorkoutsMap = workoutList
+                .stream()
+                .filter(w -> w.getUserId() == userId)
+                .map(w -> new SuggestedExercise(w.getMetadata().getExerciseTemplate().getExercise(), w.getMetadata().getExerciseTemplate().getVariation()))
+                .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+        countedWorkoutsMap.entrySet().stream().forEachOrdered(e -> sortedExercisesLeaderboard.add(new SuggestedWorkout(e.getKey(), e.getValue())));
+
+        List<SuggestedWorkout> exerciseList = ExerciseTemplate.getAvailableExerices(userId);
+        List<SuggestedWorkout> missingExercisesList = new ArrayList<>();
+        for (SuggestedWorkout s : exerciseList) {
+            if (sortedExercisesLeaderboard.stream().noneMatch(e -> e.getSuggestedExercise().getExercise() == s.getSuggestedExercise().getExercise() && e.getSuggestedExercise().getVariation() == s.getSuggestedExercise().getVariation())) {
+                missingExercisesList.add(s);
             }
         }
 
-        sortedLeaderboard.addAll(missingVariationsList);
-        sortedLeaderboard.sort(Comparator.comparing(SuggestedWorkout::getNoOfOccurs));
+        sortedExercisesLeaderboard.addAll(missingExercisesList);
+        sortedExercisesLeaderboard.sort(Comparator.comparing(SuggestedWorkout::getNoOfOccurs));
 
         Predicate<SuggestedWorkout> superFilter = combineFilters(filters);
+        Optional<SuggestedWorkout> nextExerciseOptional = sortedExercisesLeaderboard.stream().filter(superFilter).findFirst();
 
-        Optional<SuggestedWorkout> nextPlaceOptional = sortedLeaderboard.stream().filter(superFilter).findFirst();
-        Workout.Variation nextWorkoutVariation = nextPlaceOptional.isPresent() ? nextPlaceOptional.get().getName() : Workout.Variation.NORMAL;
-
-        return composeWorkout(userId, nextWorkoutVariation);
+        return nextExerciseOptional.isPresent() ? ExerciseTemplate.generateExerciseTemplate(nextExerciseOptional.get().getSuggestedExercise()) : new Kegel(ExerciseTemplate.Variation.NORMAL);
     }
 
-    public static Workout composeWorkout(int userId, Workout.Variation variation) {
-        Difficulty difficulty = composeDifficulty(userId, variation);
-        PatternMetadata patternMetadata = composePatternMetadata(userId, variation, difficulty);
+    public static Workout composeWorkout(int userId, ExerciseTemplate exerciseTemplate) {
+        Difficulty difficulty = composeDifficulty(userId, exerciseTemplate);
+        PatternMetadata patternMetadata = composePatternMetadata(userId, exerciseTemplate, difficulty);
         Pattern pattern = composePattern(patternMetadata);
-        Metadata metadata = composeMetadata(variation, difficulty, pattern);
+        Metadata metadata = composeMetadata(exerciseTemplate, difficulty, pattern);
 
         return new Workout(userId, metadata);
     }
 
-    public static Difficulty composeDifficulty(int userId, Workout.Variation variation) {
-        Workout lastWorkout = getWorkout(userId, variation);
+    public static Difficulty composeDifficulty(int userId, ExerciseTemplate exerciseTemplate) {
+        Workout lastWorkout = getWorkout(userId, exerciseTemplate);
         Metadata lastMetadata = lastWorkout.getMetadata();
 
         double lastHandicap = lastMetadata.getDifficulty().getHandicap();
@@ -88,8 +98,8 @@ public class WorkoutService {
         return new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
     }
 
-    public static PatternMetadata composePatternMetadata(int userId, Workout.Variation variation, Difficulty difficulty) {
-        Workout lastWorkout = getWorkout(userId, variation);
+    public static PatternMetadata composePatternMetadata(int userId, ExerciseTemplate exerciseTemplate, Difficulty difficulty) {
+        Workout lastWorkout = getWorkout(userId, exerciseTemplate);
         int durationAsInt = new Double(difficulty.getDuration()).intValue();
 
         // TODO Kuna meil on nyyd loodava Workout-i oodatav raskusaste teada, siis me saame oma mustrit ka vastavalt selle j2rgi korrigeerida
@@ -106,12 +116,12 @@ public class WorkoutService {
         return PatternManager.generatePattern(patternMetadata);
     }
 
-    public static Metadata composeMetadata(Workout.Variation variation, Difficulty difficulty, Pattern pattern) {
-        return new Metadata(variation, difficulty, pattern);
+    public static Metadata composeMetadata(ExerciseTemplate exerciseTemplate, Difficulty difficulty, Pattern pattern) {
+        return new Metadata(exerciseTemplate, difficulty, pattern);
     }
 
-    public static <T> Predicate<T> combineFilters(Predicate<T>... predicates) {
-        return predicates.length > 0 ? Stream.of(predicates).reduce(x -> true, Predicate::and) : x -> true;
+    public static <T> Predicate<T> combineFilters(Predicate<ExerciseTemplate>[] predicates) {
+        return predicates.length > 0 ? (Predicate<T>) Stream.of(predicates).reduce(x -> true, Predicate::and) : x -> true;
     }
 
     public static int generateRandomInteger(int min, int max, int lastRandom) {
@@ -119,71 +129,15 @@ public class WorkoutService {
         return random != lastRandom ? random : generateRandomInteger(min, max, lastRandom);
     }
 
-    public static List<Workout.Variation> getAvailableVariations(int userId) {
-        List<Workout.Variation> list = new ArrayList();
-        list.add(Workout.Variation.NORMAL);
-        list.add(Workout.Variation.FAST);
-
-        return list;
-    }
-
-    public static Workout getWorkout(int userId, Workout.Variation variation) {
+    public static Workout getWorkout(int userId, ExerciseTemplate exerciseTemplate) {
         Optional<Workout> lastWorkoutOpt = workoutList
                 .stream()
-                .filter(w -> variation == w.getMetadata().getVariation())
+                .filter(w -> w.getUserId() == userId)
+                .filter(w -> w.getMetadata().getExerciseTemplate().getExercise() == exerciseTemplate.getExercise())
+                .filter(w -> w.getMetadata().getExerciseTemplate().getVariation() == exerciseTemplate.getVariation())
                 .sorted(Comparator.comparing(Workout::getDate).reversed())
                 .findFirst();
-        return lastWorkoutOpt.isPresent() ? lastWorkoutOpt.get() : getDefaultWorkout(userId, variation);
-    }
-
-    public static Workout getDefaultWorkout(int userId, Workout.Variation variation) {
-        return variation == Workout.Variation.NORMAL ? getDefaultNormalWorkout() : getDefaultFastWorkout();
-    }
-
-    private static Workout getDefaultNormalWorkout() {
-        int globalDuration = 56;
-        int userId = 123;
-        Workout.Variation variation = Workout.Variation.NORMAL;
-        double duration = globalDuration;
-        double handicap = 0.0d;
-        double incPercentage = 0.0d;
-        double decPercentage = 0.01d;
-        double maxDuration = globalDuration;
-        int denominator = 8;
-        int min = 4;
-        int max = 10;
-
-        Difficulty difficulty = new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
-
-        int durationAsInt = new Double(duration).intValue();
-        PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
-        Pattern pattern = PatternManager.generatePattern(patternMetadata);
-        Metadata metadata = new Metadata(variation, difficulty, pattern);
-
-        return new Workout(userId, metadata);
-    }
-
-    private static Workout getDefaultFastWorkout() {
-        int globalDuration = 30;
-        int userId = 123;
-        Workout.Variation variation = Workout.Variation.FAST;
-        double duration = globalDuration;
-        double handicap = 0.0d;
-        double incPercentage = 0.0d;
-        double decPercentage = 0.01d;
-        double maxDuration = globalDuration;
-        int denominator = 8;
-        int min = 4;
-        int max = 4;
-
-        Difficulty difficulty = new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
-
-        int durationAsInt = new Double(duration).intValue();
-        PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
-        Pattern pattern = PatternManager.generatePattern(patternMetadata);
-        Metadata metadata = new Metadata(variation, difficulty, pattern);
-
-        return new Workout(userId, metadata);
+        return lastWorkoutOpt.isPresent() ? lastWorkoutOpt.get() : exerciseTemplate.getDefaultWorkout();
     }
 
     public static List<Workout> getWorkoutList() {

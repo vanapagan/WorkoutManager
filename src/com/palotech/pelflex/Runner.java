@@ -20,7 +20,7 @@ public class Runner {
 
         // TODO Mustri genereerimine
         //for (int i = 57; i < 147; i++) {
-            //PatternManager.generatePattern(57, Workout.Variation.NORMAL);
+        //PatternManager.generatePattern(57, ExerciseTemplate.Variation.NORMAL);
         //}
 
         //ComplexStep cs = new ComplexStep(ComplexStep.Type.MIN, 8, 0.5d);

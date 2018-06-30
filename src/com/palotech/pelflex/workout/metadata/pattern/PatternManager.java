@@ -15,7 +15,6 @@ public class PatternManager {
         List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
 
         Pattern pattern = new Pattern(metadata, stepsList);
-        // System.out.println(pattern);
 
         // TODO Me peame siinkohal patterni raskusastet ka kuidagi kontrollima (inkrementeerima teatud perioodi tagant)
         // TODO pattern-i raskusastme hindamine

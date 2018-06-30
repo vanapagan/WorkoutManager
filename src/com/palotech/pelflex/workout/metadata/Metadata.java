@@ -1,22 +1,22 @@
 package com.palotech.pelflex.workout.metadata;
 
-import com.palotech.pelflex.workout.Workout;
+import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 
 public class Metadata {
 
-    private Workout.Variation variation;
+    private ExerciseTemplate exerciseTemplate;
     private Difficulty difficulty;
     private Pattern pattern;
 
-    public Metadata(Workout.Variation variation, Difficulty difficulty, Pattern pattern) {
-        this.variation = variation;
+    public Metadata(ExerciseTemplate template, Difficulty difficulty, Pattern pattern) {
+        this.exerciseTemplate = template;
         this.difficulty = difficulty;
         this.pattern = pattern;
     }
 
-    public Workout.Variation getVariation() {
-        return variation;
+    public ExerciseTemplate getExerciseTemplate() {
+        return exerciseTemplate;
     }
 
     public Pattern getPattern() {
@@ -29,7 +29,7 @@ public class Metadata {
 
     @Override
     public String toString() {
-        return variation + " " + difficulty.toString() + " " + pattern.toStringCompact();
+        return exerciseTemplate + " " + difficulty.toString() + " " + pattern.toStringCompact();
     }
 
     public enum Accumulator {

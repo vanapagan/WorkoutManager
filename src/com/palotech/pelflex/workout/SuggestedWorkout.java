@@ -2,16 +2,16 @@ package com.palotech.pelflex.workout;
 
 public class SuggestedWorkout {
 
-    private Workout.Variation name;
+    private SuggestedExercise suggestedExercise;
     private long noOfOccurs;
 
-    public SuggestedWorkout(Workout.Variation name, long noOfOccurs) {
-        this.name = name;
+    public SuggestedWorkout(SuggestedExercise suggestedExercise, long noOfOccurs) {
+        this.suggestedExercise = suggestedExercise;
         this.noOfOccurs = noOfOccurs;
     }
 
-    public Workout.Variation getName() {
-        return name;
+    public SuggestedExercise getSuggestedExercise() {
+        return suggestedExercise;
     }
 
     public long getNoOfOccurs() {
