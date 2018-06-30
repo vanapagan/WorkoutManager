@@ -1,7 +1,5 @@
 package com.palotech.pelflex.workout.exercise.template;
 
-import com.palotech.pelflex.workout.SuggestedExercise;
-import com.palotech.pelflex.workout.SuggestedWorkout;
 import com.palotech.pelflex.workout.Workout;
 
 import java.util.ArrayList;
@@ -15,19 +13,24 @@ public abstract class ExerciseTemplate {
         this.variation = variation;
     }
 
-    public static List<SuggestedWorkout> getAvailableExerices(int userId) {
-        List<SuggestedWorkout> list = new ArrayList();
-        list.add(new SuggestedWorkout(new SuggestedExercise(ExerciseTemplate.Exercise.KEGEL, Variation.NORMAL), 0));
-        list.add(new SuggestedWorkout(new SuggestedExercise(ExerciseTemplate.Exercise.KEGEL, Variation.FAST), 0));
-        // TODO not implemented yet -> list.add(new SuggestedWorkout(new SuggestedExercise(Exercise.REVERSE_KEGEL, Variation.NORMAL), 0));
-        // TODO not implemented yet -> list.add(new SuggestedWorkout(new SuggestedExercise(Exercise.STRETCH, Variation.NORMAL), 0));
+    public static List<Variation> getAvailableVariations(int userId) {
+        List<Variation> list = new ArrayList();
+        list.add(Variation.NORMAL);
+        list.add(Variation.FAST);
 
         return list;
     }
 
-    public static ExerciseTemplate generateExerciseTemplate(SuggestedExercise suggestedExercise) {
-        Exercise exercise = suggestedExercise.getExercise();
-        Variation variation = suggestedExercise.getVariation();
+    public static List<Exercise> getAvailableExerices(int userId) {
+        List<Exercise> list = new ArrayList();
+        list.add(Exercise.KEGEL);
+        // TODO not implemented yet -> list.add(Exercise.REVERSE_KEGEL);
+        // TODO not implemented yet -> list.add(Exercise.STRETCH);
+
+        return list;
+    }
+
+    public static ExerciseTemplate generateExerciseTemplate(Exercise exercise, Variation variation) {
         if (exercise == Exercise.REVERSE_KEGEL) {
             return new ReverseKegel(variation);
         } else if (exercise == Exercise.STRETCH) {
