@@ -36,9 +36,13 @@ public class Workout {
         return date;
     }
 
-    public enum Variation {
-        NORMAL,
-        FAST;
+    @Override
+    public String toString() {
+        return "Workout" + Id + " " + metadata.toString();
     }
 
+    public enum Variation {
+        NORMAL,
+        FAST
+    }
 }

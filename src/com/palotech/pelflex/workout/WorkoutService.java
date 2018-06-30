@@ -1,8 +1,8 @@
 package com.palotech.pelflex.workout;
 
 import com.palotech.pelflex.workout.metadata.Difficulty;
-import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
 import com.palotech.pelflex.workout.metadata.Metadata;
+import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
 import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
@@ -12,8 +12,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Map.Entry.comparingByValue;
-
 public class WorkoutService {
 
     private static final Random RANDOM_GENERATOR = new Random();
@@ -22,10 +20,10 @@ public class WorkoutService {
 
     public static Workout getNewWorkoutThatIsNotPrevious(int userId, Workout.Variation previousVariation) {
         Predicate<SuggestedWorkout> notPreviousVariation = p -> previousVariation != p.getName();
-        return getNewWorkout(userId, notPreviousVariation);
+        return composeNewWorkout(userId, notPreviousVariation);
     }
 
-    public static Workout getNewWorkout(int userId, Predicate<SuggestedWorkout>... filters) {
+    public static Workout composeNewWorkout(int userId, Predicate<SuggestedWorkout>... filters) {
         Map<Workout.Variation, Long> countedWorkoutsMap = workoutList.stream().filter(w -> w.getUserId() == userId).collect(Collectors.groupingBy(w -> w.getMetadata().getVariation(), Collectors.counting()));
 
         List<SuggestedWorkout> sortedLeaderboard = new ArrayList<>();
@@ -47,12 +45,20 @@ public class WorkoutService {
         Optional<SuggestedWorkout> nextPlaceOptional = sortedLeaderboard.stream().filter(superFilter).findFirst();
         Workout.Variation nextWorkoutVariation = nextPlaceOptional.isPresent() ? nextPlaceOptional.get().getName() : Workout.Variation.NORMAL;
 
-        return composeNewWorkout(userId, nextWorkoutVariation);
+        return composeWorkout(userId, nextWorkoutVariation);
     }
 
-    public static Workout composeNewWorkout(int userId, Workout.Variation variation) {
-        Workout lastWorkout = getWorkout(userId, variation);
+    public static Workout composeWorkout(int userId, Workout.Variation variation) {
+        Difficulty difficulty = composeDifficulty(userId, variation);
+        PatternMetadata patternMetadata = composePatternMetadata(userId, variation, difficulty);
+        Pattern pattern = composePattern(patternMetadata);
+        Metadata metadata = composeMetadata(variation, difficulty, pattern);
 
+        return new Workout(userId, metadata);
+    }
+
+    public static Difficulty composeDifficulty(int userId, Workout.Variation variation) {
+        Workout lastWorkout = getWorkout(userId, variation);
         Metadata lastMetadata = lastWorkout.getMetadata();
 
         double lastHandicap = lastMetadata.getDifficulty().getHandicap();
@@ -60,9 +66,6 @@ public class WorkoutService {
         double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
         double maxDuration = lastMetadata.getDifficulty().getMaxDuration();
         double handicap = lastHandicap;
-        int lastDenominator = lastMetadata.getPattern().getPatternMetadata().getDenominator();
-        int lastMin = lastMetadata.getPattern().getPatternMetadata().getMin();
-        int lastMax = lastMetadata.getPattern().getPatternMetadata().getMax();
 
         double incPercentage = lastIncPercentage;
         double decPercentage = lastDecPercentage;
@@ -74,7 +77,7 @@ public class WorkoutService {
             incPercentage = lastIncPercentage >= 0.04d ? 0.0d : (lastIncPercentage == 0.0d ? 0.008d : lastIncPercentage) * 1.50d;
             duration = maxDuration * (1.0d + incPercentage);
             handicap = 0;
-         } else {
+        } else {
             decPercentage = generateRandomInteger(1, 10, (int) (lastDecPercentage * 100));
             duration = maxDuration * (1.0d - decPercentage / 100);
             handicap = handicap == 0.0d ? 0.10d : handicap;
@@ -82,19 +85,29 @@ public class WorkoutService {
         }
 
         maxDuration = duration > maxDuration ? duration : maxDuration;
+        return new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
+    }
 
-        // TODO neid peaks siin veel natuke paremini grupeerima, et konstruktorisse nii palju parameetreid ei l2heks
-        Difficulty difficulty = new Difficulty(maxDuration, handicap, incPercentage, decPercentage);
+    public static PatternMetadata composePatternMetadata(int userId, Workout.Variation variation, Difficulty difficulty) {
+        Workout lastWorkout = getWorkout(userId, variation);
+        int durationAsInt = new Double(difficulty.getDuration()).intValue();
 
-        int durationAsInt = new Double(duration).intValue();
-        PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, lastDenominator, lastMin, lastMax);
-        Pattern pattern = PatternManager.generatePattern(patternMetadata);
-        Metadata metadata = new Metadata(variation, difficulty, pattern);
+        // TODO Kuna meil on nyyd loodava Workout-i oodatav raskusaste teada, siis me saame oma mustrit ka vastavalt selle j2rgi korrigeerida
+        // TODO -> vastavalt siis nt denominaatorit suurendada v6i v2hendada, v6i hoopiski min/max-i suurendada/v2hendada
+        PatternMetadata lastPatternMetadata = lastWorkout.getMetadata().getPattern().getPatternMetadata();
+        int lastDenominator = lastPatternMetadata.getDenominator();
+        int lastMin = lastPatternMetadata.getMin();
+        int lastMax = lastPatternMetadata.getMax();
 
-        System.out.println(lastWorkout.getId() + " " + maxDuration + " - " + duration + " - " + handicap + " percentage: " + incPercentage + " --- " + variation);
+        return new PatternMetadata(durationAsInt, lastDenominator, lastMin, lastMax);
+    }
 
-        // TODO P6him6tteliselt on meil vaja nyyd genereerida uus Metadata ja selle abil siis juba uus Workout
-        return new Workout(userId, metadata);
+    public static Pattern composePattern(PatternMetadata patternMetadata) {
+        return PatternManager.generatePattern(patternMetadata);
+    }
+
+    public static Metadata composeMetadata(Workout.Variation variation, Difficulty difficulty, Pattern pattern) {
+        return new Metadata(variation, difficulty, pattern);
     }
 
     public static <T> Predicate<T> combineFilters(Predicate<T>... predicates) {
@@ -140,7 +153,7 @@ public class WorkoutService {
         int min = 4;
         int max = 10;
 
-        Difficulty difficulty = new Difficulty(maxDuration, handicap, incPercentage, decPercentage);
+        Difficulty difficulty = new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
 
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
@@ -163,7 +176,7 @@ public class WorkoutService {
         int min = 4;
         int max = 4;
 
-        Difficulty difficulty = new Difficulty(maxDuration, handicap, incPercentage, decPercentage);
+        Difficulty difficulty = new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
 
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);

@@ -27,6 +27,11 @@ public class Metadata {
         return difficulty;
     }
 
+    @Override
+    public String toString() {
+        return variation + " " + difficulty.toString() + " " + pattern.toString();
+    }
+
     public enum Accumulator {
         INCREASE_WORKOUT_DURATION,
         DECREASE_WORKOUT_DURATION,

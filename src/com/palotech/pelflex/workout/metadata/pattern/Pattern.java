@@ -62,7 +62,7 @@ public class Pattern {
 
     @Override
     public String toString() {
-        return "Duration: " + compStepList.stream().mapToInt(s -> s.getDuration()).sum() + " Pattern: " + compStepList.stream().map(ComplexStep::toString).collect(Collectors.joining(" "));
+        return "Pattern: " + compStepList.stream().map(ComplexStep::toString).collect(Collectors.joining(" "));
     }
 
 }
