@@ -81,12 +81,15 @@ public class PatternManager {
                 .filter(underspillPredicate)
                 .collect(Collectors.toList());
         containerList.removeAll(underspillContainersList);
-        // TODO sum all the underspill containers together and the combined ComplexStep to containerList
+        // TODO sum all the underspill containers together and add the combined ComplexStep to containerList
         int combinedContainerDuration = underspillContainersList.stream().mapToInt(c -> c.getDuration()).sum();
         ComplexContainer underspillCombinedContainer = new ComplexContainer(ComplexStep.Type.UNKNOWN, combinedContainerDuration);
         containerList.add(underspillCombinedContainer);
 
-        // TODO detelete all empty containers
+        // TODO distribute excess duration
+        distributeOverspill(containerList, overspillPredicate, metadata);
+
+        // TODO delete all empty containers
         List<ComplexContainer> emptyContainersList = containerList
                 .stream()
                 .filter(c -> c.getDuration() == 0)

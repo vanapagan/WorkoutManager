@@ -65,4 +65,8 @@ public class Pattern {
         return "Pattern: " + compStepList.stream().map(ComplexStep::toString).collect(Collectors.joining(" "));
     }
 
+    public String toStringCompact() {
+        return "Pattern: " + compStepList.stream().map(c -> "" + c.getDuration()).collect(Collectors.joining(" "));
+    }
+
 }

@@ -29,7 +29,7 @@ public class Metadata {
 
     @Override
     public String toString() {
-        return variation + " " + difficulty.toString() + " " + pattern.toString();
+        return variation + " " + difficulty.toString() + " " + pattern.toStringCompact();
     }
 
     public enum Accumulator {
