@@ -1,4 +1,7 @@
-package com.palotech.pelflex.workout;
+package com.palotech.pelflex.workout.pattern;
+
+import com.palotech.pelflex.workout.pattern.step.ComplexContainer;
+import com.palotech.pelflex.workout.pattern.step.ComplexStep;
 
 import java.util.*;
 import java.util.function.Predicate;

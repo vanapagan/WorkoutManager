@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.feedback.FeedbackService;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -80,6 +82,8 @@ public class WorkoutService {
         Metadata metadata = new Metadata(variation, duration, maxDuration, handicap, incPercentage, decPercentage, lastDenominator, lastMin, lastMax);
 
         System.out.println(lastWorkout.getId() + " " + maxDuration + " - " + duration + " - " + handicap + " percentage: " + incPercentage + " --- " + variation);
+
+        // TODO P6him6tteliselt on meil vaja nyyd genereerida uus Metadata ja selle abil siis juba uus Workout
         return new Workout(userId, metadata);
     }
 

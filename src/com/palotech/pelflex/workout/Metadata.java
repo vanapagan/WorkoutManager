@@ -1,5 +1,9 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.pattern.Pattern;
+import com.palotech.pelflex.workout.pattern.PatternManager;
+import com.palotech.pelflex.workout.pattern.PatternMetadata;
+
 public class Metadata {
 
     private Workout.Variation variation;
@@ -43,4 +47,18 @@ public class Metadata {
     public double getDecPercentage() {
         return decPercentage;
     }
+
+    public enum Accumulator {
+        INCREASE_WORKOUT_DURATION,
+        DECREASE_WORKOUT_DURATION,
+        INCREASE_FLEX_TIME,
+        DECREASE_FLEX_TIME,
+        INCREASE_FLEX_MAX_STEP_SIZE,
+        DECREASE_FLEX_MAX_STEP_SIZE,
+        INCREASE_MAX_FLEX_QUANTITY,
+        DECREASE_MAX_FLEX_QUANTITY,
+        INCREASE_STEP_DENOMINATOR,
+        DECREASE_STEP_DENOMINATOR
+    }
+
 }

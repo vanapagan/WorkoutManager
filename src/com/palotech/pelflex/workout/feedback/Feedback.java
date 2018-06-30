@@ -1,4 +1,4 @@
-package com.palotech.pelflex.workout;
+package com.palotech.pelflex.workout.feedback;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
