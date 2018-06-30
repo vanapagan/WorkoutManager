@@ -75,6 +75,24 @@ public class PatternManager {
         Predicate<ComplexContainer> underspillPredicate = c -> c.getDuration() < minStepSize;
         fillUnderspill(containerList, underspillPredicate, metadata);
 
+        // TODO gather all containers that still have underspill
+        List<ComplexContainer> underspillContainersList = containerList
+                .stream()
+                .filter(underspillPredicate)
+                .collect(Collectors.toList());
+        containerList.removeAll(underspillContainersList);
+        // TODO sum all the underspill containers together and the combined ComplexStep to containerList
+        int combinedContainerDuration = underspillContainersList.stream().mapToInt(c -> c.getDuration()).sum();
+        ComplexContainer underspillCombinedContainer = new ComplexContainer(ComplexStep.Type.UNKNOWN, combinedContainerDuration);
+        containerList.add(underspillCombinedContainer);
+
+        // TODO detelete all empty containers
+        List<ComplexContainer> emptyContainersList = containerList
+                .stream()
+                .filter(c -> c.getDuration() == 0)
+                .collect(Collectors.toList());
+        containerList.removeAll(emptyContainersList);
+
         // TODO fill in missing types
         containerList
                 .stream()
