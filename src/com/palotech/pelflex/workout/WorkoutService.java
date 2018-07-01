@@ -1,10 +1,10 @@
 package com.palotech.pelflex.workout;
 
-import com.palotech.pelflex.workout.exercise.template.CycleValue;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
-import com.palotech.pelflex.workout.exercise.template.PercentageCycleValue;
 import com.palotech.pelflex.workout.exercise.template.suggested.SuggestedExercise;
 import com.palotech.pelflex.workout.exercise.template.suggested.SuggestedVariation;
+import com.palotech.pelflex.workout.exercise.template.value.CycleValue;
+import com.palotech.pelflex.workout.exercise.template.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
@@ -96,6 +96,7 @@ public class WorkoutService {
     }
 
     public static Difficulty composeDifficulty(int userId, ExerciseTemplate exerciseTemplate) {
+        // TODO getWorkout annab j2lle vale tulemuse ma arvan...
         Workout lastWorkout = getWorkout(userId, exerciseTemplate);
         Metadata lastMetadata = lastWorkout.getMetadata();
 
@@ -132,6 +133,7 @@ public class WorkoutService {
         double duration = maxDuration * (1.0d + raiseOrLowerMultiplier * cycleValue);
 
         maxDuration = duration > maxDuration ? duration : maxDuration;
+
         return new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
     }
 
@@ -167,7 +169,8 @@ public class WorkoutService {
                 .filter(w -> w.getUserId() == userId)
                 .filter(w -> w.getMetadata().getExerciseTemplate().getExercise() == exerciseTemplate.getExercise())
                 .filter(w -> w.getMetadata().getExerciseTemplate().getVariation() == exerciseTemplate.getVariation())
-                .sorted(Comparator.comparing(Workout::getDate).reversed())
+                //.sorted(Comparator.comparing(Workout::getDate).reversed()) // TODO Kui teha j2rjest palju objekte, siis ta loeb kuup2evad v6rdseks ja esitleb mitu korda yhte Workouti, kui viimast
+                .sorted(Comparator.comparing(Workout::getId).reversed())
                 .findFirst();
         return lastWorkoutOpt.isPresent() ? lastWorkoutOpt.get() : exerciseTemplate.getDefaultWorkout();
     }

@@ -1,6 +1,9 @@
-package com.palotech.pelflex.workout.exercise.template;
+package com.palotech.pelflex.workout.exercise.template.reversekegel;
 
 import com.palotech.pelflex.workout.Workout;
+import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.exercise.template.value.CycleValue;
+import com.palotech.pelflex.workout.exercise.template.value.PercentageCycleValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +12,11 @@ public class ReverseKegel extends ExerciseTemplate {
 
     public ReverseKegel(Variation variation) {
         super(variation);
+    }
+
+    @Override
+    public ExerciseTemplate generateExerciseTemplate(Variation variation) {
+        return null;
     }
 
     @Override

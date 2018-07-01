@@ -10,7 +10,7 @@ public class Runner {
 
     public static void main(String[] args) {
 
-        for (int i = 0; i < 375; i++) {
+        for (int i = 0; i < 376; i++) {
             Workout w = WorkoutService.composeNewWorkout(123);
             WorkoutService.getWorkoutList().add(w);
             System.out.println(w);

@@ -1,11 +1,16 @@
 package com.palotech.pelflex.workout.exercise.template;
 
 import com.palotech.pelflex.workout.Workout;
+import com.palotech.pelflex.workout.exercise.template.custom.Custom;
+import com.palotech.pelflex.workout.exercise.template.kegel.Kegel;
+import com.palotech.pelflex.workout.exercise.template.reversekegel.ReverseKegel;
+import com.palotech.pelflex.workout.exercise.template.stretch.Stretch;
+import com.palotech.pelflex.workout.exercise.template.value.CycleValue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ExerciseTemplate {
+public abstract class ExerciseTemplate implements Incrementable {
 
     protected Variation variation;
     protected CycleValue durationIncCycleValue;
@@ -35,24 +40,25 @@ public abstract class ExerciseTemplate {
     }
 
     public static ExerciseTemplate generateExerciseTemplate(Exercise exercise, Variation variation) {
+        ExerciseTemplate exerciseTemplate;
         if (exercise == Exercise.REVERSE_KEGEL) {
-            return new ReverseKegel(variation);
+            exerciseTemplate = new ReverseKegel(variation);
         } else if (exercise == Exercise.STRETCH) {
-            return new Stretch(variation);
+            exerciseTemplate = new Stretch(variation);
+        } else if (exercise == Exercise.CUSTOM) {
+            exerciseTemplate = new Custom(variation);
         } else {
-            return new Kegel(variation);
+            exerciseTemplate = new Kegel(variation);
         }
+
+        return exerciseTemplate.generateExerciseTemplate(variation);
     }
+
+    public abstract ExerciseTemplate generateExerciseTemplate(Variation variation);
 
     public Variation getVariation() {
         return variation;
     }
-
-    public abstract CycleValue createDurationIncCycleValue(double value);
-
-    public abstract CycleValue createDurationIncPercentageCycleValue(double value);
-
-    public abstract PercentageCycleValue createDurationDecPercentageCycleValue(double value);
 
     public abstract Workout getDefaultWorkout();
 
@@ -69,7 +75,8 @@ public abstract class ExerciseTemplate {
     public enum Exercise {
         KEGEL,
         REVERSE_KEGEL,
-        STRETCH
+        STRETCH,
+        CUSTOM
     }
 
     public enum Variation {

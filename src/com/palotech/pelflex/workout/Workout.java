@@ -14,7 +14,7 @@ public class Workout {
     private LocalDateTime date;
 
     public Workout(int userId, Metadata metadata) {
-        this.Id = ++idCount;
+        this.Id = idCount++;
         this.userId = userId;
         this.metadata = metadata;
         this.date = LocalDateTime.now();
