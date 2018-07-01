@@ -104,10 +104,10 @@ public class WorkoutService {
         double lastIncPercentage = lastMetadata.getDifficulty().getIncPercentage();
         double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
         double maxDuration = lastMetadata.getDifficulty().getMaxDuration();
-        double handicap = lastHandicap;
+        double increaseEdge = lastHandicap;
 
-        double incPercentage = lastIncPercentage;
-        double decPercentage = lastDecPercentage;
+        double increasePercentage = lastIncPercentage;
+        double handicapPercentage = lastDecPercentage;
         double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(lastWorkout.getId());
         maxDuration = maxDuration * (1.0d + userFeedbackCoef);
 
@@ -120,21 +120,21 @@ public class WorkoutService {
         if (ceilingReached) {
             cycleValue = durationIncPercentageCycleValue.setAndReturnNewValue();
             durationIncCycleValue.resetValue();
-            incPercentage = cycleValue;
+            increasePercentage = cycleValue;
         } else {
             durationIncCycleValue.setAndReturnNewValue();
             cycleValue = durationDecPercentageCycleValue.setAndReturnNewValue();
-            decPercentage = cycleValue;
+            handicapPercentage = cycleValue;
         }
 
-        handicap = durationIncCycleValue.getValue();
+        increaseEdge = durationIncCycleValue.getValue();
 
         int raiseOrLowerMultiplier = ceilingReached ? 1 : -1;
         double duration = maxDuration * (1.0d + raiseOrLowerMultiplier * cycleValue);
 
         maxDuration = duration > maxDuration ? duration : maxDuration;
 
-        return new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
+        return new Difficulty(duration, maxDuration, increaseEdge, increasePercentage, handicapPercentage);
     }
 
     public static PatternMetadata composePatternMetadata(int userId, ExerciseTemplate exerciseTemplate, Difficulty difficulty) {

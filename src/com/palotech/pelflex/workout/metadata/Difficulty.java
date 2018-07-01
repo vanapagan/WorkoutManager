@@ -11,6 +11,7 @@ public class Difficulty {
     private double incPercentage;
     private double decPercentage;
 
+    // return new Difficulty(duration, maxDuration, increaseEdge, increasePercentage, handicapPercentage);
     public Difficulty(double duration, double maxDuration, double handicap, double incPercentage, double decPercentage) {
         this.duration = duration;
         this.maxDuration = maxDuration;
