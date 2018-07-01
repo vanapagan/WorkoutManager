@@ -1,7 +1,8 @@
 package com.palotech.pelflex.workout.exercise.template;
 
-import com.palotech.pelflex.workout.exercise.template.value.CycleValue;
-import com.palotech.pelflex.workout.exercise.template.value.PercentageCycleValue;
+
+import com.palotech.pelflex.workout.exercise.value.CycleValue;
+import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 
 public interface Incrementable {
 

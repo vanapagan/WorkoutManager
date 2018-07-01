@@ -1,10 +1,10 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.exercise.suggested.SuggestedExercise;
+import com.palotech.pelflex.workout.exercise.suggested.SuggestedVariation;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
-import com.palotech.pelflex.workout.exercise.template.suggested.SuggestedExercise;
-import com.palotech.pelflex.workout.exercise.template.suggested.SuggestedVariation;
-import com.palotech.pelflex.workout.exercise.template.value.CycleValue;
-import com.palotech.pelflex.workout.exercise.template.value.PercentageCycleValue;
+import com.palotech.pelflex.workout.exercise.value.CycleValue;
+import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;

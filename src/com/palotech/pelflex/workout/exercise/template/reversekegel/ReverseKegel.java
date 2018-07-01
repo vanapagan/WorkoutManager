@@ -2,8 +2,8 @@ package com.palotech.pelflex.workout.exercise.template.reversekegel;
 
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
-import com.palotech.pelflex.workout.exercise.template.value.CycleValue;
-import com.palotech.pelflex.workout.exercise.template.value.PercentageCycleValue;
+import com.palotech.pelflex.workout.exercise.value.CycleValue;
+import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,7 +5,7 @@ import com.palotech.pelflex.workout.exercise.template.custom.Custom;
 import com.palotech.pelflex.workout.exercise.template.kegel.Kegel;
 import com.palotech.pelflex.workout.exercise.template.reversekegel.ReverseKegel;
 import com.palotech.pelflex.workout.exercise.template.stretch.Stretch;
-import com.palotech.pelflex.workout.exercise.template.value.CycleValue;
+import com.palotech.pelflex.workout.exercise.value.CycleValue;
 
 import java.util.ArrayList;
 import java.util.List;
