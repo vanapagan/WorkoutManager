@@ -16,6 +16,21 @@ public class Kegel extends ExerciseTemplate {
         super(variation);
     }
 
+    @Override
+    public CycleValue createDurationIncCycleValue(double value) {
+        return new CycleValue(value, 1.19d, 0.0d, 0.90d, 0.10d);
+    }
+
+    @Override
+    public CycleValue createDurationIncPercentageCycleValue(double value) {
+        return new CycleValue(value, 1.50d, 0.0d, 0.06d, 0.008d);
+    }
+
+    @Override
+    public PercentageCycleValue createDurationDecPercentageCycleValue(double value) {
+        return new PercentageCycleValue(value, 0.0d, 0.0d, 0.10d, 0.01);
+    }
+
     private static Workout getDefaultNormalWorkout(ExerciseTemplate exerciseTemplate) {
         int globalDuration = 56;
         int userId = 123;
@@ -59,6 +74,7 @@ public class Kegel extends ExerciseTemplate {
 
         return new Workout(userId, metadata);
     }
+
 
     @Override
     public List<Variation> getVariationsList() {

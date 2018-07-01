@@ -8,6 +8,10 @@ import java.util.List;
 public abstract class ExerciseTemplate {
 
     protected Variation variation;
+    protected CycleValue durationIncCycleValue;
+    protected CycleValue durationIncPercentageCycleValue;
+    protected double durationIncMultiplier;
+    protected double durationDecPercentage;
 
     public ExerciseTemplate(Variation variation) {
         this.variation = variation;
@@ -44,11 +48,18 @@ public abstract class ExerciseTemplate {
         return variation;
     }
 
+    public abstract CycleValue createDurationIncCycleValue(double value);
+
+    public abstract CycleValue createDurationIncPercentageCycleValue(double value);
+
+    public abstract PercentageCycleValue createDurationDecPercentageCycleValue(double value);
+
     public abstract Workout getDefaultWorkout();
 
     public abstract List<Variation> getVariationsList();
 
     public abstract Exercise getExercise();
+
 
     @Override
     public String toString() {

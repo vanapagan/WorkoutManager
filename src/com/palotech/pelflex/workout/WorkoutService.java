@@ -1,6 +1,8 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.exercise.template.CycleValue;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.exercise.template.PercentageCycleValue;
 import com.palotech.pelflex.workout.exercise.template.suggested.SuggestedExercise;
 import com.palotech.pelflex.workout.exercise.template.suggested.SuggestedVariation;
 import com.palotech.pelflex.workout.metadata.Difficulty;
@@ -17,15 +19,12 @@ import java.util.stream.Stream;
 
 public class WorkoutService {
 
-    private static final Random RANDOM_GENERATOR = new Random();
-
     private static List<Workout> workoutList = new ArrayList<>();
 
     public static Workout composeNewWorkout(int userId) {
-        // TODO See siin t2ielik spagett, et lausa h2bi on:
+        // TODO See siin on t2ielik spagett, et lausa h2bi on:
         ExerciseTemplate.Exercise nextExercise = getNextSuggestedExercise(userId);
         ExerciseTemplate.Variation nextVariation = getNextSuggestedVariation(userId, nextExercise);
-
         ExerciseTemplate exerciseTemplate = ExerciseTemplate.generateExerciseTemplate(nextExercise, nextVariation);
 
         return composeWorkout(userId, exerciseTemplate);
@@ -111,17 +110,26 @@ public class WorkoutService {
         double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(lastWorkout.getId());
         maxDuration = maxDuration * (1.0d + userFeedbackCoef);
 
-        double duration;
-        if (lastHandicap >= 0.90d) {
-            incPercentage = lastIncPercentage >= 0.04d ? 0.0d : (lastIncPercentage == 0.0d ? 0.008d : lastIncPercentage) * 1.50d;
-            duration = maxDuration * (1.0d + incPercentage);
-            handicap = 0;
+        CycleValue durationIncCycleValue = exerciseTemplate.createDurationIncCycleValue(lastHandicap);
+        CycleValue durationIncPercentageCycleValue = exerciseTemplate.createDurationIncPercentageCycleValue(lastIncPercentage);
+        PercentageCycleValue durationDecPercentageCycleValue = exerciseTemplate.createDurationDecPercentageCycleValue(lastDecPercentage);
+
+        double cycleValue;
+        boolean ceilingReached = durationIncCycleValue.isCeilingReached();
+        if (ceilingReached) {
+            cycleValue = durationIncPercentageCycleValue.setAndReturnNewValue();
+            durationIncCycleValue.resetValue();
+            incPercentage = cycleValue;
         } else {
-            decPercentage = generateRandomInteger(1, 10, (int) (lastDecPercentage * 100));
-            duration = maxDuration * (1.0d - decPercentage / 100);
-            handicap = handicap == 0.0d ? 0.10d : handicap;
-            handicap *= 1.19d;
+            durationIncCycleValue.setAndReturnNewValue();
+            cycleValue = durationDecPercentageCycleValue.setAndReturnNewValue();
+            decPercentage = cycleValue;
         }
+
+        handicap = durationIncCycleValue.getValue();
+
+        int raiseOrLowerMultiplier = ceilingReached ? 1 : -1;
+        double duration = maxDuration * (1.0d + raiseOrLowerMultiplier * cycleValue);
 
         maxDuration = duration > maxDuration ? duration : maxDuration;
         return new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
@@ -151,11 +159,6 @@ public class WorkoutService {
 
     public static <T> Predicate<T> combineFilters(Predicate<ExerciseTemplate>[] predicates) {
         return predicates.length > 0 ? (Predicate<T>) Stream.of(predicates).reduce(x -> true, Predicate::and) : x -> true;
-    }
-
-    public static int generateRandomInteger(int min, int max, int lastRandom) {
-        int random = RANDOM_GENERATOR.nextInt((max - min) + 1) + min;
-        return random != lastRandom ? random : generateRandomInteger(min, max, lastRandom);
     }
 
     public static Workout getWorkout(int userId, ExerciseTemplate exerciseTemplate) {

@@ -12,6 +12,21 @@ public class Stretch extends ExerciseTemplate {
     }
 
     @Override
+    public CycleValue createDurationIncCycleValue(double value) {
+        return null;
+    }
+
+    @Override
+    public CycleValue createDurationIncPercentageCycleValue(double value) {
+        return null;
+    }
+
+    @Override
+    public PercentageCycleValue createDurationDecPercentageCycleValue(double value) {
+        return null;
+    }
+
+    @Override
     public Workout getDefaultWorkout() {
         return null;
     }
