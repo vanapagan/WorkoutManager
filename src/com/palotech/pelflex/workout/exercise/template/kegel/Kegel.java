@@ -4,6 +4,8 @@ import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
+import com.palotech.pelflex.workout.measure.IncreaseDuration;
+import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
@@ -101,5 +103,14 @@ public class Kegel extends ExerciseTemplate {
         int xp = (int) (durationReward + flexesProportionReward + variabilityCoefficientReward);
 
         return xp;
+    }
+
+    @Override
+    public List<Measure> getMeasures() {
+        List<Measure> list = new ArrayList<>();
+        // Measure(String name, Cumulator code, int priority, boolean increasing, double value1, double value2, double value3, int ttl)
+        list.add(new IncreaseDuration("Increase duration", Measure.Cumulator.INCREASE_DURATION, 100, true, 1.19d, 0, 0, 1));
+
+        return list;
     }
 }

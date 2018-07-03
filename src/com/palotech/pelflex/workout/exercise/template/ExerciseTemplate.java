@@ -10,7 +10,7 @@ import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ExerciseTemplate implements Incrementable, Rewardable {
+public abstract class ExerciseTemplate implements Incrementable, Rewardable, Cumulative {
 
     protected Variation variation;
     protected CycleValue durationIncCycleValue;

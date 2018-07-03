@@ -5,6 +5,7 @@ import com.palotech.pelflex.workout.exercise.suggested.SuggestedVariation;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
+import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
@@ -27,7 +28,14 @@ public class WorkoutService {
         ExerciseTemplate.Variation nextVariation = getNextSuggestedVariation(userId, nextExercise);
         ExerciseTemplate exerciseTemplate = ExerciseTemplate.generateExerciseTemplate(nextExercise, nextVariation);
 
-        return composeWorkout(userId, exerciseTemplate);
+        Workout workout = composeWorkout(userId, exerciseTemplate);
+
+        List<Measure> measureList = exerciseTemplate.getMeasures();
+        for (Measure measure : measureList) {
+            measure.execute(workout);
+        }
+
+        return workout;
     }
 
     private static ExerciseTemplate.Variation getNextSuggestedVariation(int userId, ExerciseTemplate.Exercise exercise) {
