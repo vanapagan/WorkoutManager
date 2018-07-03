@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout.exercise.template.custom;
 
+import com.palotech.pelflex.progress.Progress;
+import com.palotech.pelflex.progress.reward.Reward;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
@@ -45,6 +47,11 @@ public class Custom extends ExerciseTemplate {
 
     @Override
     public Exercise getExercise() {
+        return null;
+    }
+
+    @Override
+    public Reward calculateReward(Progress progress) {
         return null;
     }
 }

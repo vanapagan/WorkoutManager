@@ -1,5 +1,8 @@
 package com.palotech.pelflex.workout.exercise.template.kegel;
 
+import com.palotech.pelflex.progress.Progress;
+import com.palotech.pelflex.progress.credit.Credit;
+import com.palotech.pelflex.progress.reward.Reward;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.template.Incrementable;
@@ -14,7 +17,7 @@ import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Kegel extends ExerciseTemplate implements Incrementable {
+public class Kegel extends ExerciseTemplate {
 
     public Kegel(Variation variation) {
         super(variation);
@@ -87,4 +90,21 @@ public class Kegel extends ExerciseTemplate implements Incrementable {
         return Exercise.KEGEL;
     }
 
+    @Override
+    public Reward calculateReward(Progress progress) {
+        Workout workout = progress.getWorkout();
+        Pattern pattern = workout.getMetadata().getPattern();
+
+        double durationReward = workout.getMetadata().getDifficulty().getDuration() * 100;
+
+        int numberOfSteps = pattern.getCompStepList().size();
+        double avgFlexOverRelax = pattern.getFlexPercentage();
+        double flexesProportionReward = numberOfSteps * avgFlexOverRelax * 10;
+
+        double variabilityCoefficientReward = pattern.getVariabilityCoefficient() * 5;
+
+        int creditValue = (int) (durationReward + flexesProportionReward + variabilityCoefficientReward);
+
+        return new Reward(new Credit(creditValue));
+    }
 }

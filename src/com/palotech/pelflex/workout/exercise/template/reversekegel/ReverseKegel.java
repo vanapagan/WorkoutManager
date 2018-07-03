@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout.exercise.template.reversekegel;
 
+import com.palotech.pelflex.progress.Progress;
+import com.palotech.pelflex.progress.reward.Reward;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
@@ -49,4 +51,8 @@ public class ReverseKegel extends ExerciseTemplate {
         return Exercise.REVERSE_KEGEL;
     }
 
+    @Override
+    public Reward calculateReward(Progress progress) {
+        return null;
+    }
 }

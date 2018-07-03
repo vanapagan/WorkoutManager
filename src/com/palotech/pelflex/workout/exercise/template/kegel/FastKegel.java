@@ -11,7 +11,7 @@ import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
 import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
-public class FastKegel extends Kegel implements Incrementable {
+public class FastKegel extends Kegel {
 
     public FastKegel(Variation variation) {
         super(variation);

@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout.exercise.template.stretch;
 
+import com.palotech.pelflex.progress.Progress;
+import com.palotech.pelflex.progress.reward.Reward;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
@@ -49,4 +51,8 @@ public class Stretch extends ExerciseTemplate {
         return Exercise.STRETCH;
     }
 
+    @Override
+    public Reward calculateReward(Progress progress) {
+        return null;
+    }
 }
