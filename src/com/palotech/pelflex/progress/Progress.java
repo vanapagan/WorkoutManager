@@ -28,4 +28,8 @@ public class Progress {
         return level;
     }
 
+    @Override
+    public String toString() {
+        return "Level: " + level.getId() + " XP: " + level.getExperiencePoints() + "p NextLevel: " + level.getGoal() + "p Workout reward: " + workout.getMetadata().getExerciseTemplate().calculateXpReward(workout) + "p";
+    }
 }

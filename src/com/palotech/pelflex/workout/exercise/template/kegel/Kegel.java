@@ -1,11 +1,7 @@
 package com.palotech.pelflex.workout.exercise.template.kegel;
 
-import com.palotech.pelflex.progress.Progress;
-import com.palotech.pelflex.progress.credit.Credit;
-import com.palotech.pelflex.progress.reward.Reward;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
-import com.palotech.pelflex.workout.exercise.template.Incrementable;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.metadata.Difficulty;
@@ -91,20 +87,19 @@ public class Kegel extends ExerciseTemplate {
     }
 
     @Override
-    public Reward calculateReward(Progress progress) {
-        Workout workout = progress.getWorkout();
+    public int calculateXpReward(Workout workout) {
         Pattern pattern = workout.getMetadata().getPattern();
 
-        double durationReward = workout.getMetadata().getDifficulty().getDuration() * 100;
+        double durationReward = workout.getMetadata().getDifficulty().getDuration() * 10;
 
         int numberOfSteps = pattern.getCompStepList().size();
         double avgFlexOverRelax = pattern.getFlexPercentage();
-        double flexesProportionReward = numberOfSteps * avgFlexOverRelax * 10;
+        double flexesProportionReward = numberOfSteps * avgFlexOverRelax * 5;
 
-        double variabilityCoefficientReward = pattern.getVariabilityCoefficient() * 5;
+        double variabilityCoefficientReward = pattern.getVariabilityCoefficient() * 2.5d;
 
-        int creditValue = (int) (durationReward + flexesProportionReward + variabilityCoefficientReward);
+        int xp = (int) (durationReward + flexesProportionReward + variabilityCoefficientReward);
 
-        return new Reward(new Credit(creditValue));
+        return xp;
     }
 }
