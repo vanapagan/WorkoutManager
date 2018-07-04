@@ -2,14 +2,14 @@ package com.palotech.pelflex.workout.measure;
 
 public class MeasureRelation {
 
-    private Measure measure;
-    private Measure counterMeasure;
-    private Measure resetMeasure;
+    private Remedy remedy;
+    private Remedy counterRemedy;
+    private Remedy resetRemedy;
 
-    public MeasureRelation(Measure measure, Measure counterMeasure, Measure resetMeasure) {
-        this.measure = measure;
-        this.counterMeasure = counterMeasure;
-        this.resetMeasure = resetMeasure;
+    public MeasureRelation(Remedy remedy, Remedy counterRemedy, Remedy resetRemedy) {
+        this.remedy = remedy;
+        this.counterRemedy = counterRemedy;
+        this.resetRemedy = resetRemedy;
     }
 
 }

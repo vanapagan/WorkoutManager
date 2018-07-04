@@ -6,6 +6,7 @@ import com.palotech.pelflex.workout.builder.Builder;
 import com.palotech.pelflex.workout.builder.kegel.KegelBuilder;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.Accumulator;
+import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.Metadata;
@@ -76,6 +77,14 @@ public class KegelTemplate extends ExerciseTemplate {
     @Override
     public Exercise getExercise() {
         return KEGEL;
+    }
+
+    @Override
+    protected List<Measure> getMeasureList() {
+        List<Measure> list = new ArrayList<>();
+
+
+        return null;
     }
 
     @Override

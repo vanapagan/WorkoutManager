@@ -3,6 +3,7 @@ package com.palotech.pelflex.workout.exercise.template;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.builder.Builder;
 import com.palotech.pelflex.workout.exercise.template.kegel.KegelTemplate;
+import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.Metadata;
 
@@ -63,6 +64,7 @@ public abstract class ExerciseTemplate implements Accumulative {
 
     public abstract Exercise getExercise();
 
+    protected abstract List<Measure> getMeasureList();
 
     @Override
     public String toString() {

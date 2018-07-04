@@ -32,6 +32,4 @@ public abstract class Builder {
 
     protected abstract Metadata createMetadata();
 
-
-
 }

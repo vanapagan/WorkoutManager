@@ -10,7 +10,6 @@ import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.Metadata;
-import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
 import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
@@ -33,6 +32,8 @@ public class KegelBuilder extends Builder {
 
     @Override
     protected Difficulty createDifficulty() {
+        // TODO Me tahame k6ik need Workout-i kyljest lahti yhendada ja need hoopis ledgeriga yhendada
+
         double lastHandicap = lastMetadata.getDifficulty().getHandicap();
         double lastIncPercentage = lastMetadata.getDifficulty().getIncPercentage();
         double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
@@ -79,8 +80,8 @@ public class KegelBuilder extends Builder {
     protected PatternMetadata createPatternMetadata() {
         int durationAsInt = new Double(difficulty.getDuration()).intValue();
 
-        // TODO Kuna meil on nyyd loodava Workout-i oodatav raskusaste teada, siis me saame oma mustrit ka vastavalt selle j2rgi korrigeerida
-        // TODO -> vastavalt siis nt denominaatorit suurendada v6i v2hendada, v6i hoopiski min/max-i suurendada/v2hendada
+        // TODO Me kysime Ledgeri k2est, kas tal on 'PATTERN' grupiga midagi oma nimistus
+
         PatternMetadata lastPatternMetadata = lastMetadata.getPattern().getPatternMetadata();
         int lastDenominator = lastPatternMetadata.getDenominator();
         int lastMin = lastPatternMetadata.getMin();

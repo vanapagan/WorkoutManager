@@ -1,7 +1,6 @@
 package com.palotech.pelflex.workout.metadata;
 
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
-import com.palotech.pelflex.workout.measure.Measure;
 
 import java.util.ArrayList;
 import java.util.Comparator;
