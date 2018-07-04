@@ -1,7 +1,10 @@
 package com.palotech.pelflex.workout.exercise.template;
 
 import com.palotech.pelflex.workout.Workout;
+import com.palotech.pelflex.workout.builder.Builder;
 import com.palotech.pelflex.workout.exercise.template.kegel.KegelTemplate;
+import com.palotech.pelflex.workout.metadata.Ledger;
+import com.palotech.pelflex.workout.metadata.Metadata;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +49,7 @@ public abstract class ExerciseTemplate implements Accumulative {
         return exerciseTemplate.generateExerciseTemplate(variation);
     }
 
+    public abstract Builder createBuilder(Ledger ledger, Metadata lastMetadata);
 
     public abstract ExerciseTemplate generateExerciseTemplate(Variation variation);
 

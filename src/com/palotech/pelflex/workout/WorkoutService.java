@@ -1,8 +1,6 @@
 package com.palotech.pelflex.workout;
 
 import com.palotech.pelflex.workout.builder.Builder;
-import com.palotech.pelflex.workout.builder.kegel.FastKegelBuilder;
-import com.palotech.pelflex.workout.builder.kegel.KegelBuilder;
 import com.palotech.pelflex.workout.exercise.suggested.SuggestedExercise;
 import com.palotech.pelflex.workout.exercise.suggested.SuggestedVariation;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
@@ -26,17 +24,7 @@ public class WorkoutService {
         Workout lastWorkout = getWorkout(template);
         Metadata lastMetadata = lastWorkout.getMetadata();
 
-        // TODO siia oleks ka vaja mingisugust Template-i alamklasside v2rki, et me ei peaks neid koledaid if-else plokke kasutama
-        Builder builder;
-        if (template.getExercise() == ExerciseTemplate.Exercise.REVERSE_KEGEL) {
-            builder = null;
-        } else {
-            if (template.getVariation() == ExerciseTemplate.Variation.FAST) {
-                builder = new FastKegelBuilder(ledger, lastMetadata);
-            } else {
-                builder = new KegelBuilder(ledger, lastMetadata);
-            }
-        }
+        Builder builder = template.createBuilder(ledger, lastMetadata);
 
         return builder.createWorkout();
     }

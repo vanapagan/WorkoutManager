@@ -2,8 +2,11 @@ package com.palotech.pelflex.workout.exercise.template.kegel;
 
 import com.palotech.pelflex.workout.FastKegel;
 import com.palotech.pelflex.workout.Workout;
+import com.palotech.pelflex.workout.builder.Builder;
+import com.palotech.pelflex.workout.builder.kegel.FastKegelBuilder;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.metadata.Difficulty;
+import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
@@ -11,9 +14,9 @@ import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
 import static com.palotech.pelflex.workout.exercise.template.ExerciseTemplate.Exercise.KEGEL;
 
-public class FastKegelTemplateTemplate extends KegelTemplate {
+public class FastKegelTemplate extends KegelTemplate {
 
-    public FastKegelTemplateTemplate(Variation variation) {
+    public FastKegelTemplate(Variation variation) {
         super(variation);
     }
 
@@ -36,6 +39,11 @@ public class FastKegelTemplateTemplate extends KegelTemplate {
         Metadata metadata = new Metadata(KEGEL, Variation.FAST, difficulty, pattern);
 
         return new FastKegel(metadata);
+    }
+
+    @Override
+    public Builder createBuilder(Ledger ledger, Metadata lastMetadata) {
+        return new FastKegelBuilder(ledger, lastMetadata);
     }
 
     @Override
