@@ -42,8 +42,8 @@ public class FastKegelTemplate extends KegelTemplate {
     }
 
     @Override
-    public Builder createBuilder(Ledger ledger, Metadata lastMetadata) {
-        return new FastKegelBuilder(ledger, lastMetadata);
+    public Builder createBuilder(ExerciseTemplate template, Ledger ledger, Metadata lastMetadata) {
+        return new FastKegelBuilder(template, ledger, lastMetadata);
     }
 
     @Override

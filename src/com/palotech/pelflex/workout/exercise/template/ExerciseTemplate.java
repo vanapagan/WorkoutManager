@@ -50,7 +50,7 @@ public abstract class ExerciseTemplate implements Accumulative {
         return exerciseTemplate.generateExerciseTemplate(variation);
     }
 
-    public abstract Builder createBuilder(Ledger ledger, Metadata lastMetadata);
+    public abstract Builder createBuilder(ExerciseTemplate template, Ledger ledger, Metadata lastMetadata);
 
     public abstract ExerciseTemplate generateExerciseTemplate(Variation variation);
 

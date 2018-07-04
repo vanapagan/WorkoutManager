@@ -16,8 +16,9 @@ import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
 public class KegelBuilder extends Builder {
 
-    public KegelBuilder(Ledger ledger, Metadata lastMetadata) {
-        super(ledger, lastMetadata);
+
+    public KegelBuilder(ExerciseTemplate template, Ledger ledger, Metadata lastMetadata) {
+        super(template, ledger, lastMetadata);
     }
 
     @Override

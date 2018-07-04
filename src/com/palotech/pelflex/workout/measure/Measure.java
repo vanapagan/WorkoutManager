@@ -1,17 +1,21 @@
 package com.palotech.pelflex.workout.measure;
 
+import java.util.Optional;
+
 public class Measure {
 
     private Group group;
     private Remedy incRemedy;
     private Remedy decRemedy;
-    private Remedy balRemedy;
+    private Optional<Remedy> balRemedy;
+    private int ttl;
 
-    public Measure(Group group, Remedy incRemedy, Remedy decRemedy, Remedy balRemedy) {
+    public Measure(Group group, Remedy incRemedy, Remedy decRemedy, Optional<Remedy> balRemedy, int ttl) {
         this.group = group;
         this.incRemedy = incRemedy;
         this.decRemedy = decRemedy;
         this.balRemedy = balRemedy;
+        this.ttl = ttl;
     }
 
     public Group getGroup() {
@@ -26,8 +30,26 @@ public class Measure {
         return decRemedy;
     }
 
-    public Remedy getBalRemedy() {
+    public Optional<Remedy> getBalRemedy() {
         return balRemedy;
+    }
+
+    public int getTtl() {
+        return ttl;
+    }
+
+    private void setTtl(int ttl) {
+        this.ttl = ttl;
+    }
+
+    public boolean isAlive() {
+        return ttl > 0;
+    }
+
+    public void decreaseTtl() {
+        if (isAlive()) {
+            ttl--;
+        }
     }
 
     public enum RemedyType {

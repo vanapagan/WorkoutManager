@@ -24,7 +24,7 @@ public class WorkoutService {
         Workout lastWorkout = getWorkout(template);
         Metadata lastMetadata = lastWorkout.getMetadata();
 
-        Builder builder = template.createBuilder(ledger, lastMetadata);
+        Builder builder = template.createBuilder(template, ledger, lastMetadata);
 
         return builder.createWorkout();
     }

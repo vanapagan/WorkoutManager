@@ -7,6 +7,7 @@ import com.palotech.pelflex.workout.builder.kegel.KegelBuilder;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.measure.Measure;
+import com.palotech.pelflex.workout.measure.Remedy;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.Metadata;
@@ -16,6 +17,7 @@ import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.palotech.pelflex.workout.exercise.template.ExerciseTemplate.Exercise.KEGEL;
 
@@ -26,8 +28,8 @@ public class KegelTemplate extends ExerciseTemplate {
     }
 
     @Override
-    public Builder createBuilder(Ledger ledger, Metadata lastMetadata) {
-        return new KegelBuilder(ledger, lastMetadata);
+    public Builder createBuilder(ExerciseTemplate template, Ledger ledger, Metadata lastMetadata) {
+        return new KegelBuilder(template, ledger, lastMetadata);
     }
 
     @Override
@@ -82,9 +84,21 @@ public class KegelTemplate extends ExerciseTemplate {
     @Override
     protected List<Measure> getMeasureList() {
         List<Measure> list = new ArrayList<>();
+        Measure duIncMes = getDurationMeasure();
 
+        list.add(duIncMes);
 
-        return null;
+        return list;
+    }
+
+    private Measure getDurationMeasure() {
+        // String name, double value1, double value2, double value3, int ttl
+        Remedy incRem = new Remedy(1.19, 0, 0);
+        Remedy decRem = new Remedy(1.19, 0, 0);
+        Optional<Remedy> balRem = Optional.empty();
+        int ttl = 1;
+
+        return new Measure(Measure.Group.DURATION_LENGTH, incRem, decRem, balRem, 1);
     }
 
     @Override
