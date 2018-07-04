@@ -1,22 +1,14 @@
 package com.palotech.pelflex.workout.exercise.template;
 
 import com.palotech.pelflex.workout.Workout;
-import com.palotech.pelflex.workout.exercise.template.custom.Custom;
 import com.palotech.pelflex.workout.exercise.template.kegel.KegelTemplate;
-import com.palotech.pelflex.workout.exercise.template.reversekegel.ReverseKegel;
-import com.palotech.pelflex.workout.exercise.template.stretch.Stretch;
-import com.palotech.pelflex.workout.exercise.value.CycleValue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ExerciseTemplate implements Incrementable, Cumulative, Accumulative {
+public abstract class ExerciseTemplate implements Accumulative {
 
     protected Variation variation;
-    protected CycleValue durationIncCycleValue;
-    protected CycleValue durationIncPercentageCycleValue;
-    protected double durationIncMultiplier;
-    protected double durationDecPercentage;
 
     public ExerciseTemplate(Variation variation) {
         this.variation = variation;
@@ -42,11 +34,11 @@ public abstract class ExerciseTemplate implements Incrementable, Cumulative, Acc
     public static ExerciseTemplate generateExerciseTemplate(Exercise exercise, Variation variation) {
         ExerciseTemplate exerciseTemplate;
         if (exercise == Exercise.REVERSE_KEGEL) {
-            exerciseTemplate = new ReverseKegel(variation);
+            exerciseTemplate = new KegelTemplate(variation);
         } else if (exercise == Exercise.STRETCH) {
-            exerciseTemplate = new Stretch(variation);
+            exerciseTemplate = new KegelTemplate(variation);
         } else if (exercise == Exercise.CUSTOM) {
-            exerciseTemplate = new Custom(variation);
+            exerciseTemplate = new KegelTemplate(variation);
         } else {
             exerciseTemplate = new KegelTemplate(variation);
         }
