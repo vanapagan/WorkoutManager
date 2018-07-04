@@ -1,21 +1,26 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.exercise.value.Accumulator;
+import com.palotech.pelflex.workout.metadata.Difficulty;
+import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.Metadata;
+import com.palotech.pelflex.workout.metadata.pattern.Pattern;
+import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
 import java.time.LocalDateTime;
 
-public class Workout {
+public abstract class Workout {
 
     private static int idCount;
 
     private int Id;
-    private int userId;
     private Metadata metadata;
     private LocalDateTime date;
+    protected Accumulator accumulator;
 
-    public Workout(int userId, Metadata metadata) {
+    protected Workout(Metadata metadata) {
         this.Id = idCount++;
-        this.userId = userId;
         this.metadata = metadata;
         this.date = LocalDateTime.now();
     }
@@ -28,13 +33,11 @@ public class Workout {
         return Id;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
     public LocalDateTime getDate() {
         return date;
     }
+
+    public abstract int getXpReward();
 
     @Override
     public String toString() {

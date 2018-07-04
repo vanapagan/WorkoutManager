@@ -1,6 +1,7 @@
 package com.palotech.pelflex.workout.measure;
 
 import com.palotech.pelflex.workout.Workout;
+import com.palotech.pelflex.workout.exercise.value.Accumulator;
 
 public abstract class Measure {
 
@@ -29,7 +30,7 @@ public abstract class Measure {
         this.ttl = ttl;
     }
 
-    public abstract void execute(Workout workout);
+    public abstract void execute(Workout lastWorkout, Workout newWorkout, Accumulator accumulator);
 
     public int getId() {
         return id;

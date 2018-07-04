@@ -1,12 +1,16 @@
 package com.palotech.pelflex.workout;
 
+import com.palotech.pelflex.workout.builder.Builder;
+import com.palotech.pelflex.workout.builder.kegel.FastKegelBuilder;
+import com.palotech.pelflex.workout.builder.kegel.KegelBuilder;
 import com.palotech.pelflex.workout.exercise.suggested.SuggestedExercise;
 import com.palotech.pelflex.workout.exercise.suggested.SuggestedVariation;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
-import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.Difficulty;
+import com.palotech.pelflex.workout.metadata.Ledger;
+import com.palotech.pelflex.workout.metadata.LedgerManager;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
@@ -23,33 +27,41 @@ public class WorkoutService {
     private static List<Workout> workoutList = new ArrayList<>();
 
     public static Workout composeNewWorkout(int userId) {
-        // TODO See siin on t2ielik spagett, et lausa h2bi on:
-        ExerciseTemplate.Exercise nextExercise = getNextSuggestedExercise(userId);
-        ExerciseTemplate.Variation nextVariation = getNextSuggestedVariation(userId, nextExercise);
+        ExerciseTemplate.Exercise nextExercise = getNextSuggestedExercise();
+        ExerciseTemplate.Variation nextVariation = getNextSuggestedVariation(nextExercise);
+
         ExerciseTemplate exerciseTemplate = ExerciseTemplate.generateExerciseTemplate(nextExercise, nextVariation);
 
-        Workout workout = composeWorkout(userId, exerciseTemplate);
+        Ledger ledger = LedgerManager.getLedger(exerciseTemplate);
+        Workout lastWorkout = getWorkout(exerciseTemplate);
+        Metadata lastMetadata = lastWorkout.getMetadata();
 
-        List<Measure> measureList = exerciseTemplate.getMeasures();
-        for (Measure measure : measureList) {
-            measure.execute(workout);
+        // TODO siia oleks ka vaja mingisugust Template-i alamklasside v2rki, et me ei peaks neid koledaid if-else plokke kasutama
+        Builder builder;
+        if (nextExercise == ExerciseTemplate.Exercise.REVERSE_KEGEL) {
+            builder = null;
+        } else {
+            if (nextVariation == ExerciseTemplate.Variation.FAST) {
+                builder = new FastKegelBuilder(ledger, lastMetadata);
+            } else {
+                builder = new KegelBuilder(ledger, lastMetadata);
+            }
         }
 
-        return workout;
+        return builder.createWorkout();
     }
 
-    private static ExerciseTemplate.Variation getNextSuggestedVariation(int userId, ExerciseTemplate.Exercise exercise) {
+    private static ExerciseTemplate.Variation getNextSuggestedVariation(ExerciseTemplate.Exercise exercise) {
         List<SuggestedVariation> sortedVariationsLeaderboard = new ArrayList<>();
 
         Map<ExerciseTemplate.Variation, Long> countedVariationsMap = workoutList
                 .stream()
-                .filter(w -> w.getUserId() == userId)
-                .filter(w -> w.getMetadata().getExerciseTemplate().getExercise() == exercise)
-                .map(w -> w.getMetadata().getExerciseTemplate().getVariation())
+                .filter(w -> w.getMetadata().getExercise() == exercise)
+                .map(w -> w.getMetadata().getVariation())
                 .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
         countedVariationsMap.entrySet().stream().forEachOrdered(e -> sortedVariationsLeaderboard.add(new SuggestedVariation(e.getKey(), e.getValue())));
 
-        List<ExerciseTemplate.Variation> variationsList = ExerciseTemplate.getAvailableVariations(userId);
+        List<ExerciseTemplate.Variation> variationsList = ExerciseTemplate.getAvailableVariations();
         List<SuggestedVariation> missingVariationsList = new ArrayList<>();
         for (ExerciseTemplate.Variation v : variationsList) {
             if (sortedVariationsLeaderboard.stream().noneMatch(e -> e.getVariation() == v)) {
@@ -66,18 +78,17 @@ public class WorkoutService {
         return nextVariationOptional.isPresent() ? nextVariationOptional.get().getVariation() : ExerciseTemplate.Variation.NORMAL;
     }
 
-    private static ExerciseTemplate.Exercise getNextSuggestedExercise(int userId) {
+    private static ExerciseTemplate.Exercise getNextSuggestedExercise() {
         List<SuggestedExercise> sortedExercisesLeaderboard = new ArrayList<>();
 
         // TODO grupperimine ei toimi 6igesti ja annab mitu korda j2rjest sama Workout-i
         Map<ExerciseTemplate.Exercise, Long> countedExercisesMap = workoutList
                 .stream()
-                .filter(w -> w.getUserId() == userId)
-                .map(w -> w.getMetadata().getExerciseTemplate().getExercise())
+                .map(w -> w.getMetadata().getExercise())
                 .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
         countedExercisesMap.entrySet().stream().forEachOrdered(e -> sortedExercisesLeaderboard.add(new SuggestedExercise(e.getKey(), e.getValue())));
 
-        List<ExerciseTemplate.Exercise> exerciseList = ExerciseTemplate.getAvailableExerices(userId);
+        List<ExerciseTemplate.Exercise> exerciseList = ExerciseTemplate.getAvailableExerices();
         List<SuggestedExercise> missingExercisesList = new ArrayList<>();
         for (ExerciseTemplate.Exercise s : exerciseList) {
             if (sortedExercisesLeaderboard.stream().noneMatch(e -> e.getExercise() == s)) {
@@ -94,89 +105,15 @@ public class WorkoutService {
         return nextExerciseOptional.isPresent() ? nextExerciseOptional.get().getExercise() : ExerciseTemplate.Exercise.KEGEL;
     }
 
-    public static Workout composeWorkout(int userId, ExerciseTemplate exerciseTemplate) {
-        Difficulty difficulty = composeDifficulty(userId, exerciseTemplate);
-        PatternMetadata patternMetadata = composePatternMetadata(userId, exerciseTemplate, difficulty);
-        Pattern pattern = composePattern(patternMetadata);
-        Metadata metadata = composeMetadata(exerciseTemplate, difficulty, pattern);
-
-        return new Workout(userId, metadata);
-    }
-
-    public static Difficulty composeDifficulty(int userId, ExerciseTemplate exerciseTemplate) {
-        // TODO getWorkout annab j2lle vale tulemuse ma arvan...
-        Workout lastWorkout = getWorkout(userId, exerciseTemplate);
-        Metadata lastMetadata = lastWorkout.getMetadata();
-
-        double lastHandicap = lastMetadata.getDifficulty().getHandicap();
-        double lastIncPercentage = lastMetadata.getDifficulty().getIncPercentage();
-        double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
-        double maxDuration = lastMetadata.getDifficulty().getMaxDuration();
-        double increaseEdge = lastHandicap;
-
-        double increasePercentage = lastIncPercentage;
-        double handicapPercentage = lastDecPercentage;
-        double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(lastWorkout.getId());
-        maxDuration = maxDuration * (1.0d + userFeedbackCoef);
-
-        CycleValue durationIncCycleValue = exerciseTemplate.createDurationIncCycleValue(lastHandicap);
-        CycleValue durationIncPercentageCycleValue = exerciseTemplate.createDurationIncPercentageCycleValue(lastIncPercentage);
-        PercentageCycleValue durationDecPercentageCycleValue = exerciseTemplate.createDurationDecPercentageCycleValue(lastDecPercentage);
-
-        double cycleValue;
-        boolean ceilingReached = durationIncCycleValue.isCeilingReached();
-        if (ceilingReached) {
-            cycleValue = durationIncPercentageCycleValue.setAndReturnNewValue();
-            durationIncCycleValue.resetValue();
-            increasePercentage = cycleValue;
-        } else {
-            durationIncCycleValue.setAndReturnNewValue();
-            cycleValue = durationDecPercentageCycleValue.setAndReturnNewValue();
-            handicapPercentage = cycleValue;
-        }
-
-        increaseEdge = durationIncCycleValue.getValue();
-
-        int raiseOrLowerMultiplier = ceilingReached ? 1 : -1;
-        double duration = maxDuration * (1.0d + raiseOrLowerMultiplier * cycleValue);
-
-        maxDuration = duration > maxDuration ? duration : maxDuration;
-
-        return new Difficulty(duration, maxDuration, increaseEdge, increasePercentage, handicapPercentage);
-    }
-
-    public static PatternMetadata composePatternMetadata(int userId, ExerciseTemplate exerciseTemplate, Difficulty difficulty) {
-        Workout lastWorkout = getWorkout(userId, exerciseTemplate);
-        int durationAsInt = new Double(difficulty.getDuration()).intValue();
-
-        // TODO Kuna meil on nyyd loodava Workout-i oodatav raskusaste teada, siis me saame oma mustrit ka vastavalt selle j2rgi korrigeerida
-        // TODO -> vastavalt siis nt denominaatorit suurendada v6i v2hendada, v6i hoopiski min/max-i suurendada/v2hendada
-        PatternMetadata lastPatternMetadata = lastWorkout.getMetadata().getPattern().getPatternMetadata();
-        int lastDenominator = lastPatternMetadata.getDenominator();
-        int lastMin = lastPatternMetadata.getMin();
-        int lastMax = lastPatternMetadata.getMax();
-
-        return new PatternMetadata(durationAsInt, lastDenominator, lastMin, lastMax);
-    }
-
-    public static Pattern composePattern(PatternMetadata patternMetadata) {
-        return PatternManager.generatePattern(patternMetadata);
-    }
-
-    public static Metadata composeMetadata(ExerciseTemplate exerciseTemplate, Difficulty difficulty, Pattern pattern) {
-        return new Metadata(exerciseTemplate, difficulty, pattern);
-    }
-
     public static <T> Predicate<T> combineFilters(Predicate<ExerciseTemplate>[] predicates) {
         return predicates.length > 0 ? (Predicate<T>) Stream.of(predicates).reduce(x -> true, Predicate::and) : x -> true;
     }
 
-    public static Workout getWorkout(int userId, ExerciseTemplate exerciseTemplate) {
+    public static Workout getWorkout(ExerciseTemplate exerciseTemplate) {
         Optional<Workout> lastWorkoutOpt = workoutList
                 .stream()
-                .filter(w -> w.getUserId() == userId)
-                .filter(w -> w.getMetadata().getExerciseTemplate().getExercise() == exerciseTemplate.getExercise())
-                .filter(w -> w.getMetadata().getExerciseTemplate().getVariation() == exerciseTemplate.getVariation())
+                .filter(w -> w.getMetadata().getExercise() == exerciseTemplate.getExercise())
+                .filter(w -> w.getMetadata().getVariation() == exerciseTemplate.getVariation())
                 //.sorted(Comparator.comparing(Workout::getDate).reversed()) // TODO Kui teha j2rjest palju objekte, siis ta loeb kuup2evad v6rdseks ja esitleb mitu korda yhte Workouti, kui viimast
                 .sorted(Comparator.comparing(Workout::getId).reversed())
                 .findFirst();

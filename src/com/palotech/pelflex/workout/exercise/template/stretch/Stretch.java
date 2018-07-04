@@ -2,6 +2,7 @@ package com.palotech.pelflex.workout.exercise.template.stretch;
 
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.measure.Measure;
@@ -51,12 +52,12 @@ public class Stretch extends ExerciseTemplate {
     }
 
     @Override
-    public int calculateXpReward(Workout workout) {
-        return 0;
+    public List<Measure> getMeasures() {
+        return null;
     }
 
     @Override
-    public List<Measure> getMeasures() {
+    public Accumulator getDefaultAccumulator() {
         return null;
     }
 }

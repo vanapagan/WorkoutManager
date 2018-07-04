@@ -8,7 +8,8 @@ import com.palotech.pelflex.workout.Workout;
 public class ProgressManager {
 
     public static Progress getProgress(Workout workout) {
-        int xp = workout.getMetadata().getExerciseTemplate().calculateXpReward(workout);
+        // TODO template is null here
+        int xp = workout.getXpReward();
         LevelManager.addXp(xp);
         Level level = LevelManager.getLevel();
 

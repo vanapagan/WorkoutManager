@@ -15,9 +15,9 @@ public class Runner {
         for (int i = 0; i < 376; i++) {
             Workout w = WorkoutService.composeNewWorkout(123);
             WorkoutService.getWorkoutList().add(w);
-            // System.out.println(w);
-            Progress progress = ProgressManager.getProgress(w);
-            System.out.println(progress);
+            System.out.println(w);
+            // Progress progress = ProgressManager.getProgress(w);
+            //System.out.println(progress);
         }
 
         // System.out.println(new ComplexStep(ComplexStep.Type.MAX, 3, 0.50d));

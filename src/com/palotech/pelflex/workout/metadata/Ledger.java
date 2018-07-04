@@ -1,8 +1,10 @@
-package com.palotech.pelflex.workout;
+package com.palotech.pelflex.workout.metadata;
 
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.measure.Measure;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Ledger {
@@ -10,15 +12,17 @@ public class Ledger {
     private static int idCount;
 
     private int id;
+    private Accumulator accumulator;
     private ExerciseTemplate.Exercise exercise;
     private ExerciseTemplate.Variation variation;
     private List<Measure> measureList;
 
-    public Ledger(ExerciseTemplate.Exercise exercise, ExerciseTemplate.Variation variation, List<Measure> measureList) {
+    public Ledger(ExerciseTemplate exerciseTemplate) {
         this.id = ++idCount;
-        this.exercise = exercise;
-        this.variation = variation;
-        this.measureList = measureList;
+        this.accumulator = exerciseTemplate.getDefaultAccumulator();
+        this.exercise = exerciseTemplate.getExercise();
+        this.variation = exerciseTemplate.getVariation();
+        this.measureList = new ArrayList<>();
     }
 
     public int getId() {
@@ -27,6 +31,10 @@ public class Ledger {
 
     public ExerciseTemplate.Exercise getExercise() {
         return exercise;
+    }
+
+    public Accumulator getAccumulator() {
+        return accumulator;
     }
 
     public ExerciseTemplate.Variation getVariation() {

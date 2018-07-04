@@ -1,7 +1,9 @@
 package com.palotech.pelflex.workout.exercise.template.kegel;
 
+import com.palotech.pelflex.workout.Kegel;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.measure.IncreaseDuration;
@@ -15,18 +17,20 @@ import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Kegel extends ExerciseTemplate {
+import static com.palotech.pelflex.workout.exercise.template.ExerciseTemplate.Exercise.KEGEL;
 
-    public Kegel(Variation variation) {
+public class KegelTemplate extends ExerciseTemplate {
+
+    public KegelTemplate(Variation variation) {
         super(variation);
     }
 
     @Override
     public ExerciseTemplate generateExerciseTemplate(Variation variation) {
         if (variation == Variation.FAST) {
-            return new FastKegel(variation);
+            return new FastKegelTemplateTemplate(variation);
         } else {
-            return new Kegel(variation);
+            return new KegelTemplate(variation);
         }
     }
 
@@ -69,9 +73,9 @@ public class Kegel extends ExerciseTemplate {
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
         Pattern pattern = PatternManager.generatePattern(patternMetadata);
-        Metadata metadata = new Metadata(exerciseTemplate, difficulty, pattern);
+        Metadata metadata = new Metadata(KEGEL, Variation.NORMAL, difficulty, pattern);
 
-        return new Workout(userId, metadata);
+        return new Kegel(metadata);
     }
 
     @Override
@@ -85,24 +89,7 @@ public class Kegel extends ExerciseTemplate {
 
     @Override
     public Exercise getExercise() {
-        return Exercise.KEGEL;
-    }
-
-    @Override
-    public int calculateXpReward(Workout workout) {
-        Pattern pattern = workout.getMetadata().getPattern();
-
-        double durationReward = workout.getMetadata().getDifficulty().getDuration() * 10;
-
-        int numberOfSteps = pattern.getCompStepList().size();
-        double avgFlexOverRelax = pattern.getFlexPercentage();
-        double flexesProportionReward = numberOfSteps * avgFlexOverRelax * 5;
-
-        double variabilityCoefficientReward = pattern.getVariabilityCoefficient() * 2.5d;
-
-        int xp = (int) (durationReward + flexesProportionReward + variabilityCoefficientReward);
-
-        return xp;
+        return KEGEL;
     }
 
     @Override
@@ -112,5 +99,11 @@ public class Kegel extends ExerciseTemplate {
         list.add(new IncreaseDuration("Increase duration", Measure.Cumulator.INCREASE_DURATION, 100, true, 1.19d, 0, 0, 1));
 
         return list;
+    }
+
+    // return new CycleValue(value, 1.19d, 0.0d, 0.90d, 0.10d);
+    @Override
+    public Accumulator getDefaultAccumulator() {
+        return new Accumulator(0, 10, 0, 90, 1.19);
     }
 }

@@ -1,6 +1,5 @@
 package com.palotech.pelflex.workout.metadata;
 
-import com.palotech.pelflex.workout.Ledger;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.measure.Measure;
 
@@ -14,21 +13,24 @@ public class LedgerManager {
 
     private static List<Ledger> ledgerList = new ArrayList<>();
 
-    private static Ledger getLedger(ExerciseTemplate.Exercise exercise, ExerciseTemplate.Variation variation, List<Measure> measures) {
+    public static Ledger getLedger(ExerciseTemplate exerciseTemplate) {
+        ExerciseTemplate.Exercise exercise = exerciseTemplate.getExercise();
+        ExerciseTemplate.Variation variation = exerciseTemplate.getVariation();
+
         if (ledgerList
                 .stream()
                 .filter(l -> l.getExercise() == exercise)
                 .filter(l -> l.getVariation() == variation)
-                .filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
+                //.filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
                 .collect(Collectors.toList()).isEmpty()) {
-            ledgerList.add(new Ledger(exercise, variation, measures));
+            ledgerList.add(new Ledger(exerciseTemplate));
         }
 
         Optional<Ledger> ledgerOptional = ledgerList
                 .stream()
                 .filter(l -> l.getExercise() == exercise)
                 .filter(l -> l.getVariation() == variation)
-                .filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
+                // TODO not implemented yet -> .filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
                 .sorted(Comparator.comparing(Ledger::getId).reversed())
                 .findFirst();
 

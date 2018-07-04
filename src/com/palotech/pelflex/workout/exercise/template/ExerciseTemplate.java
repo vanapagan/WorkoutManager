@@ -2,7 +2,7 @@ package com.palotech.pelflex.workout.exercise.template;
 
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.exercise.template.custom.Custom;
-import com.palotech.pelflex.workout.exercise.template.kegel.Kegel;
+import com.palotech.pelflex.workout.exercise.template.kegel.KegelTemplate;
 import com.palotech.pelflex.workout.exercise.template.reversekegel.ReverseKegel;
 import com.palotech.pelflex.workout.exercise.template.stretch.Stretch;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
@@ -10,7 +10,7 @@ import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ExerciseTemplate implements Incrementable, Rewardable, Cumulative {
+public abstract class ExerciseTemplate implements Incrementable, Cumulative, Accumulative {
 
     protected Variation variation;
     protected CycleValue durationIncCycleValue;
@@ -22,7 +22,7 @@ public abstract class ExerciseTemplate implements Incrementable, Rewardable, Cum
         this.variation = variation;
     }
 
-    public static List<Variation> getAvailableVariations(int userId) {
+    public static List<Variation> getAvailableVariations() {
         List<Variation> list = new ArrayList();
         list.add(Variation.NORMAL);
         list.add(Variation.FAST);
@@ -30,7 +30,7 @@ public abstract class ExerciseTemplate implements Incrementable, Rewardable, Cum
         return list;
     }
 
-    public static List<Exercise> getAvailableExerices(int userId) {
+    public static List<Exercise> getAvailableExerices() {
         List<Exercise> list = new ArrayList();
         list.add(Exercise.KEGEL);
         // TODO not implemented yet -> list.add(Exercise.REVERSE_KEGEL);
@@ -48,7 +48,7 @@ public abstract class ExerciseTemplate implements Incrementable, Rewardable, Cum
         } else if (exercise == Exercise.CUSTOM) {
             exerciseTemplate = new Custom(variation);
         } else {
-            exerciseTemplate = new Kegel(variation);
+            exerciseTemplate = new KegelTemplate(variation);
         }
 
         return exerciseTemplate.generateExerciseTemplate(variation);
