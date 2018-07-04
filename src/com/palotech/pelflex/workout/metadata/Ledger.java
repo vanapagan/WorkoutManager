@@ -4,7 +4,6 @@ import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.measure.Measure;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Ledger {
@@ -22,7 +21,7 @@ public class Ledger {
         this.accumulator = exerciseTemplate.getDefaultAccumulator();
         this.exercise = exerciseTemplate.getExercise();
         this.variation = exerciseTemplate.getVariation();
-        this.measureList = new ArrayList<>();
+        this.measureList = exerciseTemplate.getMeasureList();
     }
 
     public int getId() {
@@ -43,6 +42,10 @@ public class Ledger {
 
     public List<Measure> getMeasureList() {
         return measureList;
+    }
+
+    public boolean contains(Measure.Group group) {
+        return measureList.stream().anyMatch(m -> m.getGroup() == group);
     }
 
 }

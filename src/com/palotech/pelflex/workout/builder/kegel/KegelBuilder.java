@@ -7,12 +7,15 @@ import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
+import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
 import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
+
+import java.util.List;
 
 public class KegelBuilder extends Builder {
 
@@ -28,7 +31,15 @@ public class KegelBuilder extends Builder {
         pattern = createPattern();
         metadata = createMetadata();
 
+        accumulate();
+
         return new Kegel(metadata);
+    }
+
+    private void accumulate() {
+        ledger.getAccumulator().accumulate();
+        // TODO lisame Ledgeri kylge ka j2rgmise Measure-i, v6i kui tal juba on k6ik olemas, siis ei tee midagi
+        // TODO also lähtesta k6ik Measure-id, kui Workout-i duration-it on tõstetud
     }
 
     @Override
@@ -52,20 +63,20 @@ public class KegelBuilder extends Builder {
         Accumulator accumulator = ledger.getAccumulator();
         boolean ceilingReached = accumulator.isCeilingReached();
 
+        List<Measure> measures = template.getMeasureList();
+
         CycleValue durIncValue = new CycleValue(lastIncPercentage, 1.50d, 0.0d, 0.04d, 0.008d);
         CycleValue durSkimValue = new PercentageCycleValue(lastDecPercentage, 0.0d, 0.0d, 0.10d, 0.01);
 
         // If ceiling is reached and there is a INCREMENT_DURATION in ledger's measures
         double cycleValue;
-        if (ceilingReached) {
+        if (ceilingReached && ledger.contains(Measure.Group.DURATION_LENGTH)) {
             cycleValue = durIncValue.setAndReturnNewValue();
             increasePercentage = cycleValue;
         } else {
             cycleValue = durSkimValue.setAndReturnNewValue();
             handicapPercentage = cycleValue;
         }
-
-        accumulator.accumulate();
 
         increaseEdge = accumulator.getValue();
 

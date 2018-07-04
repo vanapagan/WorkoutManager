@@ -82,7 +82,7 @@ public class KegelTemplate extends ExerciseTemplate {
     }
 
     @Override
-    protected List<Measure> getMeasureList() {
+    public List<Measure> getMeasureList() {
         List<Measure> list = new ArrayList<>();
         Measure duIncMes = getDurationMeasure();
 

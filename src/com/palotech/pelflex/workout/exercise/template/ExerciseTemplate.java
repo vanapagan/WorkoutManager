@@ -64,7 +64,7 @@ public abstract class ExerciseTemplate implements Accumulative {
 
     public abstract Exercise getExercise();
 
-    protected abstract List<Measure> getMeasureList();
+    public abstract List<Measure> getMeasureList();
 
     @Override
     public String toString() {
