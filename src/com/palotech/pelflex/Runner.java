@@ -1,7 +1,5 @@
 package com.palotech.pelflex;
 
-import com.palotech.pelflex.progress.Progress;
-import com.palotech.pelflex.progress.ProgressManager;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.WorkoutService;
 
@@ -13,7 +11,7 @@ public class Runner {
     public static void main(String[] args) {
 
         for (int i = 0; i < 376; i++) {
-            Workout w = WorkoutService.composeNewWorkout(123);
+            Workout w = WorkoutService.composeNewWorkout();
             WorkoutService.getWorkoutList().add(w);
             System.out.println(w);
             // Progress progress = ProgressManager.getProgress(w);

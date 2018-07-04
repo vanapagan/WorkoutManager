@@ -46,6 +46,7 @@ public abstract class ExerciseTemplate implements Accumulative {
         return exerciseTemplate.generateExerciseTemplate(variation);
     }
 
+
     public abstract ExerciseTemplate generateExerciseTemplate(Variation variation);
 
     public Variation getVariation() {

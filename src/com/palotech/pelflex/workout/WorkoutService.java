@@ -6,16 +6,9 @@ import com.palotech.pelflex.workout.builder.kegel.KegelBuilder;
 import com.palotech.pelflex.workout.exercise.suggested.SuggestedExercise;
 import com.palotech.pelflex.workout.exercise.suggested.SuggestedVariation;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
-import com.palotech.pelflex.workout.exercise.value.CycleValue;
-import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
-import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.LedgerManager;
 import com.palotech.pelflex.workout.metadata.Metadata;
-import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
-import com.palotech.pelflex.workout.metadata.pattern.Pattern;
-import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
-import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -26,22 +19,19 @@ public class WorkoutService {
 
     private static List<Workout> workoutList = new ArrayList<>();
 
-    public static Workout composeNewWorkout(int userId) {
-        ExerciseTemplate.Exercise nextExercise = getNextSuggestedExercise();
-        ExerciseTemplate.Variation nextVariation = getNextSuggestedVariation(nextExercise);
+    public static Workout composeNewWorkout() {
+        ExerciseTemplate template = getNextSuggestedWorkoutTemplate();
 
-        ExerciseTemplate exerciseTemplate = ExerciseTemplate.generateExerciseTemplate(nextExercise, nextVariation);
-
-        Ledger ledger = LedgerManager.getLedger(exerciseTemplate);
-        Workout lastWorkout = getWorkout(exerciseTemplate);
+        Ledger ledger = LedgerManager.getLedger(template);
+        Workout lastWorkout = getWorkout(template);
         Metadata lastMetadata = lastWorkout.getMetadata();
 
         // TODO siia oleks ka vaja mingisugust Template-i alamklasside v2rki, et me ei peaks neid koledaid if-else plokke kasutama
         Builder builder;
-        if (nextExercise == ExerciseTemplate.Exercise.REVERSE_KEGEL) {
+        if (template.getExercise() == ExerciseTemplate.Exercise.REVERSE_KEGEL) {
             builder = null;
         } else {
-            if (nextVariation == ExerciseTemplate.Variation.FAST) {
+            if (template.getVariation() == ExerciseTemplate.Variation.FAST) {
                 builder = new FastKegelBuilder(ledger, lastMetadata);
             } else {
                 builder = new KegelBuilder(ledger, lastMetadata);
@@ -49,6 +39,13 @@ public class WorkoutService {
         }
 
         return builder.createWorkout();
+    }
+
+    private static ExerciseTemplate getNextSuggestedWorkoutTemplate() {
+        ExerciseTemplate.Exercise nextExercise = getNextSuggestedExercise();
+        ExerciseTemplate.Variation nextVariation = getNextSuggestedVariation(nextExercise);
+
+        return ExerciseTemplate.generateExerciseTemplate(nextExercise, nextVariation);
     }
 
     private static ExerciseTemplate.Variation getNextSuggestedVariation(ExerciseTemplate.Exercise exercise) {
