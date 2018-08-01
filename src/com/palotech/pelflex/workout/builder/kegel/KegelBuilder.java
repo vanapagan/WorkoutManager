@@ -4,7 +4,6 @@ import com.palotech.pelflex.workout.Kegel;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.builder.Builder;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
-import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.measure.Measure;
@@ -47,8 +46,14 @@ public class KegelBuilder extends Builder {
         // TODO Me tahame k6ik need Workout-i kyljest lahti yhendada ja need hoopis ledgeriga yhendada
 
         double lastHandicap = lastMetadata.getDifficulty().getHandicap();
+
+        // TODO hangime need v22rtused ledgeri kyljest
+        // "DurationPeriodicInc"
+        // "DurationPercentageSkim"
+        // TODO Ledger v6iks juba vastavad CycleValue-d meile tagasi anda
         double lastIncPercentage = lastMetadata.getDifficulty().getIncPercentage();
         double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
+
         double maxDuration = lastMetadata.getDifficulty().getMaxDuration();
         double increaseEdge = lastHandicap;
 
@@ -60,17 +65,14 @@ public class KegelBuilder extends Builder {
 
         ledger.getMeasureList();
 
-        Accumulator accumulator = ledger.getAccumulator();
-        boolean ceilingReached = accumulator.isCeilingReached();
-
         List<Measure> measures = template.getMeasureList();
 
         CycleValue durIncValue = new CycleValue(lastIncPercentage, 1.50d, 0.0d, 0.04d, 0.008d);
         CycleValue durSkimValue = new PercentageCycleValue(lastDecPercentage, 0.0d, 0.0d, 0.10d, 0.01);
 
-        // If ceiling is reached and there is a INCREMENT_DURATION in ledger's measures
+        // If ceiling is reached and there is an INCREMENT_DURATION in ledger's measures
         double cycleValue;
-        if (ceilingReached && ledger.contains(Measure.Group.DURATION_LENGTH)) {
+        if (ledger.isItTimeToAccumulate(Measure.Group.DURATION_LENGTH)) {
             cycleValue = durIncValue.setAndReturnNewValue();
             increasePercentage = cycleValue;
         } else {
@@ -78,9 +80,13 @@ public class KegelBuilder extends Builder {
             handicapPercentage = cycleValue;
         }
 
-        increaseEdge = accumulator.getValue();
+        // TODO CycleValue tuleb meil kuidagimoodi maha salvestada, et seda siis hiljem kysida saaks, sama võtmega
 
-        int raiseOrLowerMultiplier = ceilingReached ? 1 : -1;
+        // TODO Burnerite v22rtused peaksid juba siinkohal Ledgeri kyljes olema
+
+        increaseEdge = ledger.getAccumulator().getValue();
+
+        int raiseOrLowerMultiplier = ledger.isCeilingReached() ? 1 : -1;
         double duration = maxDuration * (1.0d + raiseOrLowerMultiplier * cycleValue);
 
         maxDuration = duration > maxDuration ? duration : maxDuration;

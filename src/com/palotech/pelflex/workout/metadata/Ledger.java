@@ -1,5 +1,6 @@
 package com.palotech.pelflex.workout.metadata;
 
+import com.palotech.pelflex.workout.burner.Transitory;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.measure.Measure;
@@ -15,13 +16,15 @@ public class Ledger {
     private ExerciseTemplate.Exercise exercise;
     private ExerciseTemplate.Variation variation;
     private List<Measure> measureList;
+    private List<Transitory> transitoryList;
 
-    public Ledger(ExerciseTemplate exerciseTemplate) {
+    public Ledger(ExerciseTemplate exerciseTemplate, List<Transitory> transitoryList) {
         this.id = ++idCount;
         this.accumulator = exerciseTemplate.getDefaultAccumulator();
         this.exercise = exerciseTemplate.getExercise();
         this.variation = exerciseTemplate.getVariation();
         this.measureList = exerciseTemplate.getMeasureList();
+        this.transitoryList = transitoryList;
     }
 
     public int getId() {
@@ -36,6 +39,10 @@ public class Ledger {
         return accumulator;
     }
 
+    public List<Transitory> getTransitoryList() {
+        return transitoryList;
+    }
+
     public ExerciseTemplate.Variation getVariation() {
         return variation;
     }
@@ -44,8 +51,12 @@ public class Ledger {
         return measureList;
     }
 
-    public boolean contains(Measure.Group group) {
-        return measureList.stream().anyMatch(m -> m.getGroup() == group);
+    public boolean isItTimeToAccumulate(Measure.Group group) {
+        return isCeilingReached() && measureList.stream().anyMatch(m -> m.getGroup() == group);
+    }
+
+    public boolean isCeilingReached() {
+        return accumulator.isCeilingReached();
     }
 
 }

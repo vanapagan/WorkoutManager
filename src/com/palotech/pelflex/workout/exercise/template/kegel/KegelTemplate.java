@@ -4,6 +4,7 @@ import com.palotech.pelflex.workout.Kegel;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.builder.Builder;
 import com.palotech.pelflex.workout.builder.kegel.KegelBuilder;
+import com.palotech.pelflex.workout.burner.Transitory;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.measure.Measure;
@@ -16,6 +17,7 @@ import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
 import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +28,54 @@ public class KegelTemplate extends ExerciseTemplate {
     public KegelTemplate(Variation variation) {
         super(variation);
     }
+
+    @Override
+    public List<String> getBurnerKeysList() {
+        List<String> list = new ArrayList();
+        list.add("DurationPeriodicInc");
+        list.add("DurationPercentageSkim");
+
+        return list;
+    }
+
+
+    @Override
+    public Transitory getTransitoryDefault(String key) {
+        Transitory transitory;
+        if (key.equals("DurationPeriodicInc")) {
+            transitory = new Transitory("DurationPeriodicInc", getExercise(), getVariation(), 0.0d, 1.50d, 0.0d, 0.04d, 0.008d, 0.0d);
+        } else {
+            transitory = new Transitory("DurationPercentageSkim", getExercise(), getVariation(), 0.0d, 0.0d, 0.10d, 0.01d, 0.0d, 0.0d);
+        }
+
+        return transitory;
+    }
+
+    /*
+        List<Burner> list = new ArrayList<>();
+
+        // Duration periodic incrementation burner
+        Map<String, Double> durPeriodicIncDoubleMap = new HashMap<>();
+        durPeriodicIncDoubleMap.put("value", 0.0d);
+        durPeriodicIncDoubleMap.put("multiplier", 1.50d);
+        durPeriodicIncDoubleMap.put("floor", 0.0d);
+        durPeriodicIncDoubleMap.put("ceiling", 0.04d);
+        durPeriodicIncDoubleMap.put("initialValue", 0.008d);
+
+        Burner durPeriodicIncBurner = new Burner("DurationPeriodicInc", durPeriodicIncDoubleMap);
+        list.add(durPeriodicIncBurner);
+
+        // Duration percentage skim
+        Map<String, Double> durPerSkimDoubleMap = new HashMap<>();
+        durPeriodicIncDoubleMap.put("lastPercentage", 0.0d);
+        durPeriodicIncDoubleMap.put("min", 0.0d);
+        durPeriodicIncDoubleMap.put("max", 0.10d);
+        durPeriodicIncDoubleMap.put("initialValue", 0.01d);
+
+        Burner durPerSkimBurner = new Burner("DurationPercentageSkim", durPeriodicIncDoubleMap);
+        list.add(durPerSkimBurner);
+
+     */
 
     @Override
     public Builder createBuilder(ExerciseTemplate template, Ledger ledger, Metadata lastMetadata) {
@@ -82,6 +132,13 @@ public class KegelTemplate extends ExerciseTemplate {
     }
 
     @Override
+    public void initMeasureMap() {
+        this.measureMap = new HashMap<>();
+        measureMap.put(getDurationMeasure(), getStepFlexProportionMeasure());
+        measureMap.put(getStepFlexProportionMeasure(), getDurationMeasure());
+    }
+
+    @Override
     public List<Measure> getMeasureList() {
         List<Measure> list = new ArrayList<>();
         Measure duIncMes = getDurationMeasure();
@@ -89,6 +146,11 @@ public class KegelTemplate extends ExerciseTemplate {
         list.add(duIncMes);
 
         return list;
+    }
+
+    @Override
+    public Measure getNextMeasure(Measure measure) {
+        return measureMap.get(measure);
     }
 
     private Measure getDurationMeasure() {
@@ -99,6 +161,10 @@ public class KegelTemplate extends ExerciseTemplate {
         int ttl = 1;
 
         return new Measure(Measure.Group.DURATION_LENGTH, incRem, decRem, balRem, 1);
+    }
+
+    private Measure getStepFlexProportionMeasure() {
+        return null;
     }
 
     @Override

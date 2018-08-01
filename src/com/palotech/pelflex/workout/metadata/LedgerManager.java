@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout.metadata;
 
+import com.palotech.pelflex.workout.burner.Transitory;
+import com.palotech.pelflex.workout.burner.TransitoryManager;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 
 import java.util.ArrayList;
@@ -22,7 +24,14 @@ public class LedgerManager {
                 .filter(l -> l.getVariation() == variation)
                 //.filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
                 .collect(Collectors.toList()).isEmpty()) {
-            ledgerList.add(new Ledger(exerciseTemplate));
+
+            // TODO acquire list of keys for Transitories, so that we can fetch their latest values from db
+            List<String> transitoryKeysList = exerciseTemplate.getBurnerKeysList();
+
+            // TODO fetch their latest values from the db
+            List<Transitory> transitoryList = TransitoryManager.getTransitoryList(exerciseTemplate);
+
+            ledgerList.add(new Ledger(exerciseTemplate, transitoryList));
         }
 
         Optional<Ledger> ledgerOptional = ledgerList
