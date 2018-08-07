@@ -4,6 +4,7 @@ import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.builder.Builder;
 import com.palotech.pelflex.workout.burner.Transitory;
 import com.palotech.pelflex.workout.exercise.template.kegel.KegelTemplate;
+import com.palotech.pelflex.workout.exercise.value.CycleValue;
 import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.Metadata;
@@ -53,6 +54,10 @@ public abstract class ExerciseTemplate implements Accumulative {
 
         return exerciseTemplate.generateExerciseTemplate(variation);
     }
+
+    public abstract CycleValue convertTransitoryToCycleValue(List<Transitory> transitoryList, String key);
+
+    public abstract Transitory convertCycleValueToTransitory(CycleValue cycleValue);
 
     public abstract Transitory getTransitoryDefault(String key);
 

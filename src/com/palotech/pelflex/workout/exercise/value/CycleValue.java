@@ -2,13 +2,15 @@ package com.palotech.pelflex.workout.exercise.value;
 
 public class CycleValue {
 
+    protected String name;
     protected double value;
     protected double floor;
     protected double ceiling;
     private double multiplier;
     private double initialValue;
 
-    public CycleValue(double value, double multiplier, double floor, double ceiling, double initialValue) {
+    public CycleValue(String name, double value, double multiplier, double floor, double ceiling, double initialValue) {
+        this.name = name;
         this.value = value;
         this.multiplier = multiplier;
         this.floor = floor;
@@ -39,5 +41,25 @@ public class CycleValue {
 
     public double getValue() {
         return value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getFloor() {
+        return floor;
+    }
+
+    public double getCeiling() {
+        return ceiling;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public double getInitialValue() {
+        return initialValue;
     }
 }

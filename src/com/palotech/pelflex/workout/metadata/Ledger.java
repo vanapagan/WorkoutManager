@@ -16,6 +16,7 @@ public class Ledger {
     private ExerciseTemplate.Exercise exercise;
     private ExerciseTemplate.Variation variation;
     private List<Measure> measureList;
+    private List<Measure> measureClipList;
     private List<Transitory> transitoryList;
 
     public Ledger(ExerciseTemplate exerciseTemplate, List<Transitory> transitoryList) {
@@ -24,6 +25,8 @@ public class Ledger {
         this.exercise = exerciseTemplate.getExercise();
         this.variation = exerciseTemplate.getVariation();
         this.measureList = exerciseTemplate.getMeasureList();
+        // TODO implement the the clip
+        this.measureClipList = exerciseTemplate.getMeasureList();
         this.transitoryList = transitoryList;
     }
 
@@ -52,7 +55,11 @@ public class Ledger {
     }
 
     public boolean isItTimeToAccumulate(Measure.Group group) {
-        return isCeilingReached() && measureList.stream().anyMatch(m -> m.getGroup() == group);
+        return isCeilingReached() && measureClipList.stream().anyMatch(m -> m.getGroup() == group);
+    }
+
+    public List<Measure> getMeasureClipList() {
+        return measureClipList;
     }
 
     public boolean isCeilingReached() {

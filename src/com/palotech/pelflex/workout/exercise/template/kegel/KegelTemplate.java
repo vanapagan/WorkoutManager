@@ -7,6 +7,8 @@ import com.palotech.pelflex.workout.builder.kegel.KegelBuilder;
 import com.palotech.pelflex.workout.burner.Transitory;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.Accumulator;
+import com.palotech.pelflex.workout.exercise.value.CycleValue;
+import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.measure.Remedy;
 import com.palotech.pelflex.workout.metadata.Difficulty;
@@ -27,6 +29,43 @@ public class KegelTemplate extends ExerciseTemplate {
 
     public KegelTemplate(Variation variation) {
         super(variation);
+    }
+
+    private static Workout getDefaultNormalWorkout(ExerciseTemplate exerciseTemplate) {
+        int globalDuration = 56;
+        double duration = globalDuration;
+        double handicap = 0.0d;
+        double incPercentage = 0.0d;
+        double decPercentage = 0.01d;
+        double maxDuration = globalDuration;
+        int denominator = 8;
+        int min = 4;
+        int max = 10;
+
+        Difficulty difficulty = new Difficulty(duration, maxDuration);
+
+        int durationAsInt = new Double(duration).intValue();
+        PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
+        Pattern pattern = PatternManager.generatePattern(patternMetadata);
+        Metadata metadata = new Metadata(KEGEL, Variation.NORMAL, difficulty, pattern);
+
+        return new Kegel(metadata);
+    }
+
+    @Override
+    public CycleValue convertTransitoryToCycleValue(List<Transitory> transitoryList, String key) {
+        Optional<Transitory> transitoryOptional = transitoryList.stream().filter(t -> key.equals(t.getName())).findFirst();
+        CycleValue cycleValue = null;
+        if (transitoryOptional.isPresent()) {
+            Transitory transitory = transitoryOptional.get();
+            if ("DurationPeriodicInc".equals(key)) {
+                cycleValue = new CycleValue("DurationPeriodicInc", transitory.getDoubleValue1(), transitory.getDoubleValue2(), transitory.getDoubleValue3(), transitory.getDoubleValue4(), transitory.getDoubleValue5());
+            } else if ("DurationPercentageSkim".equals(key)) {
+                cycleValue = new PercentageCycleValue("DurationPercentageSkim", transitory.getDoubleValue1(), transitory.getDoubleValue2(), transitory.getDoubleValue3(), transitory.getDoubleValue4(), transitory.getDoubleValue5());
+            }
+        }
+
+        return cycleValue;
     }
 
     @Override
@@ -96,25 +135,17 @@ public class KegelTemplate extends ExerciseTemplate {
         return getDefaultNormalWorkout(this);
     }
 
-    private static Workout getDefaultNormalWorkout(ExerciseTemplate exerciseTemplate) {
-        int globalDuration = 56;
-        double duration = globalDuration;
-        double handicap = 0.0d;
-        double incPercentage = 0.0d;
-        double decPercentage = 0.01d;
-        double maxDuration = globalDuration;
-        int denominator = 8;
-        int min = 4;
-        int max = 10;
+    @Override
+    public Transitory convertCycleValueToTransitory(CycleValue cycleValue) {
+        Transitory transitory = null;
+        if (cycleValue.getName().equals("DurationPeriodicInc")) {
+            // CycleValue(String name, double value, double multiplier, double floor, double ceiling, double initialValue)
+            transitory = new Transitory(cycleValue.getName(), getExercise(), getVariation(), cycleValue.getValue(), cycleValue.getMultiplier(), cycleValue.getFloor(), cycleValue.getCeiling(), cycleValue.getInitialValue(), 0.0d);
+        } else {
+            transitory = new Transitory(cycleValue.getName(), getExercise(), getVariation(), cycleValue.getValue(), cycleValue.getMultiplier(), cycleValue.getFloor(), cycleValue.getCeiling(), 0.0d, 0.0d);
+        }
 
-        Difficulty difficulty = new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
-
-        int durationAsInt = new Double(duration).intValue();
-        PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
-        Pattern pattern = PatternManager.generatePattern(patternMetadata);
-        Metadata metadata = new Metadata(KEGEL, Variation.NORMAL, difficulty, pattern);
-
-        return new Kegel(metadata);
+        return transitory;
     }
 
     @Override

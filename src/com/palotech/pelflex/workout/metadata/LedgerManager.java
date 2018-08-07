@@ -3,6 +3,7 @@ package com.palotech.pelflex.workout.metadata;
 import com.palotech.pelflex.workout.burner.Transitory;
 import com.palotech.pelflex.workout.burner.TransitoryManager;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.measure.Measure;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,6 +24,7 @@ public class LedgerManager {
                 .filter(l -> l.getExercise() == exercise)
                 .filter(l -> l.getVariation() == variation)
                 //.filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
+                .filter(l -> l.getMeasureClipList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))
                 .collect(Collectors.toList()).isEmpty()) {
 
             // TODO acquire list of keys for Transitories, so that we can fetch their latest values from db
@@ -34,11 +36,14 @@ public class LedgerManager {
             ledgerList.add(new Ledger(exerciseTemplate, transitoryList));
         }
 
+        // filter(l -> l.getMeasureList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))
+
         Optional<Ledger> ledgerOptional = ledgerList
                 .stream()
                 .filter(l -> l.getExercise() == exercise)
                 .filter(l -> l.getVariation() == variation)
                 // TODO not implemented yet -> .filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
+                .filter(l -> l.getMeasureClipList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))
                 .sorted(Comparator.comparing(Ledger::getId).reversed())
                 .findFirst();
 

@@ -3,9 +3,9 @@ package com.palotech.pelflex.workout.builder.kegel;
 import com.palotech.pelflex.workout.Kegel;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.builder.Builder;
+import com.palotech.pelflex.workout.burner.Transitory;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
-import com.palotech.pelflex.workout.exercise.value.PercentageCycleValue;
 import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Ledger;
@@ -15,6 +15,7 @@ import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
 import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
 
 import java.util.List;
+import java.util.Optional;
 
 public class KegelBuilder extends Builder {
 
@@ -45,53 +46,62 @@ public class KegelBuilder extends Builder {
     protected Difficulty createDifficulty() {
         // TODO Me tahame k6ik need Workout-i kyljest lahti yhendada ja need hoopis ledgeriga yhendada
 
-        double lastHandicap = lastMetadata.getDifficulty().getHandicap();
+        //double lastHandicap = lastMetadata.getDifficulty().getHandicap();
 
         // TODO hangime need v22rtused ledgeri kyljest
         // "DurationPeriodicInc"
         // "DurationPercentageSkim"
         // TODO Ledger v6iks juba vastavad CycleValue-d meile tagasi anda
-        double lastIncPercentage = lastMetadata.getDifficulty().getIncPercentage();
-        double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
+        //double lastIncPercentage = lastMetadata.getDifficulty().getIncPercentage();
+        //double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
 
         double maxDuration = lastMetadata.getDifficulty().getMaxDuration();
-        double increaseEdge = lastHandicap;
+        //double increaseEdge = lastHandicap;
 
-        double increasePercentage = lastIncPercentage;
-        double handicapPercentage = lastDecPercentage;
+        //double increasePercentage = lastIncPercentage;
+        //double handicapPercentage = lastDecPercentage;
         // TODO double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(lastWorkout.getId());
         // maxDuration = maxDuration * (1.0d + userFeedbackCoef);
         maxDuration = maxDuration * (1.0d + 0.0d);
 
-        ledger.getMeasureList();
+        List<Transitory> transitoryList = ledger.getTransitoryList();
 
-        List<Measure> measures = template.getMeasureList();
-
-        CycleValue durIncValue = new CycleValue(lastIncPercentage, 1.50d, 0.0d, 0.04d, 0.008d);
-        CycleValue durSkimValue = new PercentageCycleValue(lastDecPercentage, 0.0d, 0.0d, 0.10d, 0.01);
+        CycleValue durIncValue = template.convertTransitoryToCycleValue(transitoryList, "DurationPeriodicInc");
+        CycleValue durSkimValue = template.convertTransitoryToCycleValue(transitoryList, "DurationPercentageSkim");
 
         // If ceiling is reached and there is an INCREMENT_DURATION in ledger's measures
-        double cycleValue;
-        if (ledger.isItTimeToAccumulate(Measure.Group.DURATION_LENGTH)) {
-            cycleValue = durIncValue.setAndReturnNewValue();
-            increasePercentage = cycleValue;
-        } else {
-            cycleValue = durSkimValue.setAndReturnNewValue();
-            handicapPercentage = cycleValue;
+        boolean isItTimeToAccumulate = ledger.isItTimeToAccumulate(Measure.Group.DURATION_LENGTH);
+        double cycleValue = isItTimeToAccumulate ? durIncValue.setAndReturnNewValue() : durSkimValue.setAndReturnNewValue();
+
+        // TODO removing executed measures from the clip
+        if (isItTimeToAccumulate) {
+            List<Measure> measureClipList = ledger.getMeasureClipList();
+            Optional<Measure> measureOptional = measureClipList.stream().filter(m -> m.getGroup() == Measure.Group.DURATION_LENGTH).findAny();
+            if (measureOptional.isPresent()) {
+                Measure measure = measureOptional.get();
+                measureClipList.remove(measure);
+            }
         }
 
         // TODO CycleValue tuleb meil kuidagimoodi maha salvestada, et seda siis hiljem kysida saaks, sama võtmega
+        // TODO CycleValue-d tuleb tagasi Transitory-deks maha kirjutada ja siis ilmselt ledgeri kylge lisada?
+        Transitory durIncTransitory = template.convertCycleValueToTransitory(durIncValue);
+        Transitory durSkimTransitory = template.convertCycleValueToTransitory(durSkimValue);
+
+        transitoryList.add(durIncTransitory);
+        transitoryList.add(durSkimTransitory);
 
         // TODO Burnerite v22rtused peaksid juba siinkohal Ledgeri kyljes olema
 
-        increaseEdge = ledger.getAccumulator().getValue();
+        // increaseEdge = ledger.getAccumulator().getValue();
 
         int raiseOrLowerMultiplier = ledger.isCeilingReached() ? 1 : -1;
         double duration = maxDuration * (1.0d + raiseOrLowerMultiplier * cycleValue);
 
         maxDuration = duration > maxDuration ? duration : maxDuration;
 
-        return new Difficulty(duration, maxDuration, increaseEdge, increasePercentage, handicapPercentage);
+        // return new Difficulty(duration, maxDuration, increaseEdge, durIncValue.getValue(), durSkimValue.getValue());
+        return new Difficulty(duration, maxDuration);
     }
 
     @Override

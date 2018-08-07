@@ -31,7 +31,7 @@ public class FastKegelTemplate extends KegelTemplate {
         int min = 4;
         int max = 4;
 
-        Difficulty difficulty = new Difficulty(duration, maxDuration, handicap, incPercentage, decPercentage);
+        Difficulty difficulty = new Difficulty(duration, maxDuration);
 
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
