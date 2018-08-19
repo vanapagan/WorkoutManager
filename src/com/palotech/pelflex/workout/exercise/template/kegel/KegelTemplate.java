@@ -184,6 +184,12 @@ public class KegelTemplate extends ExerciseTemplate {
         return measureMap.get(measure);
     }
 
+    @Override
+    public List<Measure> getMeasureClipList(double userFeedbackCoef) {
+        // TODO at the moment we only use the durIncMeasure
+        return getMeasureList();
+    }
+
     private Measure getDurationMeasure() {
         // String name, double value1, double value2, double value3, int ttl
         Remedy incRem = new Remedy(1.19, 0, 0);

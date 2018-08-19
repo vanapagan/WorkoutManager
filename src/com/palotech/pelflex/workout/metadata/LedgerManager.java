@@ -4,6 +4,7 @@ import com.palotech.pelflex.workout.burner.Transitory;
 import com.palotech.pelflex.workout.burner.TransitoryManager;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.measure.Measure;
+import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,7 +34,11 @@ public class LedgerManager {
             // TODO fetch their latest values from the db
             List<Transitory> transitoryList = TransitoryManager.getTransitoryList(exerciseTemplate);
 
-            ledgerList.add(new Ledger(exerciseTemplate, transitoryList));
+
+            // TODO hangime siinkohal ka userFeedbacki ja lisame selle alusel vajalikud Measurid juba Ledgeri clipi
+            double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(exercise, variation);
+
+            ledgerList.add(new Ledger(exerciseTemplate, transitoryList, userFeedbackCoef));
         }
 
         // filter(l -> l.getMeasureList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))

@@ -18,16 +18,22 @@ public class Ledger {
     private List<Measure> measureList;
     private List<Measure> measureClipList;
     private List<Transitory> transitoryList;
+    private double userFeedbackCoef;
 
-    public Ledger(ExerciseTemplate exerciseTemplate, List<Transitory> transitoryList) {
+    public Ledger(ExerciseTemplate exerciseTemplate, List<Transitory> transitoryList, double userFeedbackCoef) {
         this.id = ++idCount;
         this.accumulator = exerciseTemplate.getDefaultAccumulator();
         this.exercise = exerciseTemplate.getExercise();
         this.variation = exerciseTemplate.getVariation();
         this.measureList = exerciseTemplate.getMeasureList();
         // TODO implement the the clip
-        this.measureClipList = exerciseTemplate.getMeasureList();
+        this.measureClipList = exerciseTemplate.getMeasureClipList(userFeedbackCoef);
         this.transitoryList = transitoryList;
+        this.userFeedbackCoef = userFeedbackCoef;
+    }
+
+    public double getUserFeedbackCoef() {
+        return userFeedbackCoef;
     }
 
     public int getId() {

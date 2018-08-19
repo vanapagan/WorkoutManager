@@ -1,5 +1,7 @@
 package com.palotech.pelflex.workout.metadata.feedback;
 
+import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+
 import java.time.LocalDateTime;
 
 public class Feedback {
@@ -7,24 +9,25 @@ public class Feedback {
     private static int idCount;
 
     private int Id;
-    private int userId;
-    private int workoutId;
+    ExerciseTemplate.Exercise exercise;
+    ExerciseTemplate.Variation variation;
     private double satCo;
     private LocalDateTime date;
 
-    public Feedback(int userId, double satCo) {
+    public Feedback(ExerciseTemplate.Exercise exercise, ExerciseTemplate.Variation variation, double satCo) {
         this.Id = ++idCount;
-        this.userId = userId;
+        this.exercise = exercise;
+        this.variation = variation;
         this.satCo = satCo;
         this.date = LocalDateTime.now();
     }
 
-    public int getWorkoutId() {
-        return workoutId;
+    public ExerciseTemplate.Exercise getExercise() {
+        return exercise;
     }
 
-    public void setWorkoutId(int workoutId) {
-        this.workoutId = workoutId;
+    public ExerciseTemplate.Variation getVariation() {
+        return variation;
     }
 
     public static int getIdCount() {
@@ -33,10 +36,6 @@ public class Feedback {
 
     public int getId() {
         return Id;
-    }
-
-    public int getUserId() {
-        return userId;
     }
 
     public double getSatCo() {

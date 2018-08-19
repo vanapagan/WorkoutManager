@@ -20,6 +20,7 @@ public class WorkoutService {
     public static Workout composeNewWorkout() {
         ExerciseTemplate template = getNextSuggestedWorkoutTemplate();
 
+
         Ledger ledger = LedgerManager.getLedger(template);
         Workout lastWorkout = getWorkout(template);
         Metadata lastMetadata = lastWorkout.getMetadata();

@@ -83,6 +83,8 @@ public abstract class ExerciseTemplate implements Accumulative {
 
     public abstract Measure getNextMeasure(Measure measure);
 
+    public abstract List<Measure> getMeasureClipList(double userFeedbackCoef);
+
     @Override
     public String toString() {
         return getExercise() + " " + variation;
