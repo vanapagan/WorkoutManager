@@ -34,11 +34,7 @@ public class LedgerManager {
             // TODO fetch their latest values from the db
             List<Transitory> transitoryList = TransitoryManager.getTransitoryList(exerciseTemplate);
 
-
-            // TODO hangime siinkohal ka userFeedbacki ja lisame selle alusel vajalikud Measurid juba Ledgeri clipi
-            double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(exercise, variation);
-
-            ledgerList.add(new Ledger(exerciseTemplate, transitoryList, userFeedbackCoef));
+            ledgerList.add(new Ledger(exerciseTemplate, transitoryList));
             System.out.println("Created new Ledger instance");
         }
 
@@ -54,7 +50,15 @@ public class LedgerManager {
                 .sorted(Comparator.comparing(Ledger::getId).reversed())
                 .findFirst();
 
-        return ledgerOptional.isPresent() ? ledgerOptional.get() : null;
+
+        Ledger ledger = null;
+        if (ledgerOptional.isPresent()) {
+            ledger = ledgerOptional.get();
+            double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(exercise, variation);
+            ledger.loadMeasuresToClip(userFeedbackCoef);
+        }
+
+        return ledger;
     }
 
 }

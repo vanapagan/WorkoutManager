@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class ExerciseTemplate implements Accumulative {
 
     protected Variation variation;
-    protected Map<Measure, Measure> measureMap;
+    protected Map<Measure.Group, Measure> measureMap;
 
     public ExerciseTemplate(Variation variation) {
         this.variation = variation;
@@ -83,7 +83,7 @@ public abstract class ExerciseTemplate implements Accumulative {
 
     public abstract Measure getNextMeasure(Measure measure);
 
-    public abstract List<Measure> getMeasureClipList(double userFeedbackCoef);
+    public abstract List<Measure> getMeasureClipList(double userFeedbackCoef, Measure lastMeasure);
 
     public abstract int getLedgerMaxLevel();
 

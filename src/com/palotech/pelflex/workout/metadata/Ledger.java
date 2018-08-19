@@ -19,38 +19,43 @@ public class Ledger {
     private List<Measure> measureList;
     private List<Measure> measureClipList;
     private List<Transitory> transitoryList;
-    private double userFeedbackCoef;
     private ExerciseTemplate exerciseTemplate;
     private int level;
+    private List<Measure> appliedMeasuresList = new ArrayList<>();
 
     // TODO Paneme Ledgeri külge ka level-i, siis me teame, mitu korda me neid Measure-id peame rakendama, enne kui uue Ledgeri võtame
-    public Ledger(ExerciseTemplate exerciseTemplate, List<Transitory> transitoryList, double userFeedbackCoef) {
+    public Ledger(ExerciseTemplate exerciseTemplate, List<Transitory> transitoryList) {
         this.id = ++idCount;
         this.accumulator = exerciseTemplate.getDefaultAccumulator();
         this.exercise = exerciseTemplate.getExercise();
         this.variation = exerciseTemplate.getVariation();
         this.measureList = new ArrayList<>();
-        // TODO implement the clip
-        this.measureClipList = exerciseTemplate.getMeasureClipList(userFeedbackCoef);
+        this.measureClipList = new ArrayList<>();
         this.transitoryList = transitoryList;
-        this.userFeedbackCoef = userFeedbackCoef;
         this.level = 1;
         this.exerciseTemplate = exerciseTemplate;
+    }
+
+    private Measure getLastAppliedMeasure() {
+        return !appliedMeasuresList.isEmpty() ? appliedMeasuresList.get(appliedMeasuresList.size() - 1) : exerciseTemplate.getNextMeasure(null);
+    }
+
+    public void loadMeasuresToClip(double userFeedbackCoef) {
+        if (measureClipList.isEmpty()) {
+            Measure lastAppliedMeasure = getLastAppliedMeasure();
+            measureClipList.addAll(exerciseTemplate.getMeasureClipList(userFeedbackCoef, lastAppliedMeasure));
+        }
     }
 
     public boolean isCompleted() {
         return level > exerciseTemplate.getLedgerMaxLevel();
     }
 
-    public int getLevel() {
-        return level;
-    }
-
     public void progressLedger() {
         accumulator.accumulate();
         if (haveAllMeasuresBeenApplied()) {
             measureList = new ArrayList<>();
-            measureClipList = exerciseTemplate.getMeasureClipList(userFeedbackCoef);
+            measureClipList = new ArrayList<>();
             accumulator.reset();
             levelUp();
         }
@@ -66,7 +71,7 @@ public class Ledger {
     }
 
     public double getUserFeedbackCoef() {
-        return userFeedbackCoef;
+        return 0.0d;
     }
 
     public int getId() {

@@ -165,8 +165,9 @@ public class KegelTemplate extends ExerciseTemplate {
     @Override
     public void initMeasureMap() {
         this.measureMap = new HashMap<>();
-        measureMap.put(getDurationMeasure(), getStepFlexProportionMeasure());
-        measureMap.put(getStepFlexProportionMeasure(), getDurationMeasure());
+        // measureMap.put(getDurationMeasure().getGroup(), getStepFlexProportionMeasure());
+        measureMap.put(getDurationMeasure().getGroup(), getDurationMeasure());
+        // measureMap.put(getStepFlexProportionMeasure().getGroup(), getDurationMeasure());
     }
 
     @Override
@@ -181,12 +182,13 @@ public class KegelTemplate extends ExerciseTemplate {
 
     @Override
     public Measure getNextMeasure(Measure measure) {
-        return measureMap.get(measure);
+        return measure != null ? measureMap.get(measure.getGroup()) : measureMap.get(Measure.Group.DURATION_LENGTH);
     }
 
     @Override
-    public List<Measure> getMeasureClipList(double userFeedbackCoef) {
-        // TODO at the moment we only use the durIncMeasure
+    public List<Measure> getMeasureClipList(double userFeedbackCoef, Measure lastMeasure) {
+        List<Measure> measureClipList = new ArrayList<>();
+        measureClipList.add(getNextMeasure(lastMeasure));
         return getMeasureList();
     }
 
