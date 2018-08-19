@@ -34,9 +34,6 @@ public class KegelTemplate extends ExerciseTemplate {
     private static Workout getDefaultNormalWorkout(ExerciseTemplate exerciseTemplate) {
         int globalDuration = 56;
         double duration = globalDuration;
-        double handicap = 0.0d;
-        double incPercentage = 0.0d;
-        double decPercentage = 0.01d;
         double maxDuration = globalDuration;
         int denominator = 8;
         int min = 4;
@@ -62,6 +59,9 @@ public class KegelTemplate extends ExerciseTemplate {
                 cycleValue = new CycleValue("DurationPeriodicInc", transitory.getDoubleValue1(), transitory.getDoubleValue2(), transitory.getDoubleValue3(), transitory.getDoubleValue4(), transitory.getDoubleValue5());
             } else if ("DurationPercentageSkim".equals(key)) {
                 cycleValue = new PercentageCycleValue("DurationPercentageSkim", transitory.getDoubleValue1(), transitory.getDoubleValue2(), transitory.getDoubleValue3(), transitory.getDoubleValue4(), transitory.getDoubleValue5());
+            } else if ("StepFlexProportion".equals(key)) {
+                // 0.0d, 0.1d, 0.3, 0.5, 0.0d, 0.0d
+                cycleValue = new CycleValue("StepFlexProportion", transitory.getDoubleValue1(), transitory.getDoubleValue2(), transitory.getDoubleValue3(), transitory.getDoubleValue4(), transitory.getDoubleValue5());
             }
         }
 
@@ -73,6 +73,7 @@ public class KegelTemplate extends ExerciseTemplate {
         List<String> list = new ArrayList();
         list.add("DurationPeriodicInc");
         list.add("DurationPercentageSkim");
+        //list.add("StepFlexProportion");
 
         return list;
     }
@@ -83,38 +84,14 @@ public class KegelTemplate extends ExerciseTemplate {
         Transitory transitory;
         if (key.equals("DurationPeriodicInc")) {
             transitory = new Transitory("DurationPeriodicInc", getExercise(), getVariation(), 0.0d, 1.50d, 0.0d, 0.04d, 0.008d, 0.0d);
+        } else if (key.equals("StepFlexProportion")) {
+            transitory = new Transitory("StepFlexProportion", getExercise(), getVariation(), 0.0d, 0.1d, 0.3, 0.5, 0.0d, 0.0d);
         } else {
             transitory = new Transitory("DurationPercentageSkim", getExercise(), getVariation(), 0.0d, 0.0d, 0.10d, 0.01d, 0.0d, 0.0d);
         }
 
         return transitory;
     }
-
-    /*
-        List<Burner> list = new ArrayList<>();
-
-        // Duration periodic incrementation burner
-        Map<String, Double> durPeriodicIncDoubleMap = new HashMap<>();
-        durPeriodicIncDoubleMap.put("value", 0.0d);
-        durPeriodicIncDoubleMap.put("multiplier", 1.50d);
-        durPeriodicIncDoubleMap.put("floor", 0.0d);
-        durPeriodicIncDoubleMap.put("ceiling", 0.04d);
-        durPeriodicIncDoubleMap.put("initialValue", 0.008d);
-
-        Burner durPeriodicIncBurner = new Burner("DurationPeriodicInc", durPeriodicIncDoubleMap);
-        list.add(durPeriodicIncBurner);
-
-        // Duration percentage skim
-        Map<String, Double> durPerSkimDoubleMap = new HashMap<>();
-        durPeriodicIncDoubleMap.put("lastPercentage", 0.0d);
-        durPeriodicIncDoubleMap.put("min", 0.0d);
-        durPeriodicIncDoubleMap.put("max", 0.10d);
-        durPeriodicIncDoubleMap.put("initialValue", 0.01d);
-
-        Burner durPerSkimBurner = new Burner("DurationPercentageSkim", durPeriodicIncDoubleMap);
-        list.add(durPerSkimBurner);
-
-     */
 
     @Override
     public Builder createBuilder(ExerciseTemplate template, Ledger ledger, Metadata lastMetadata) {
@@ -136,13 +113,15 @@ public class KegelTemplate extends ExerciseTemplate {
     }
 
     @Override
-    public Transitory convertCycleValueToTransitory(CycleValue cycleValue) {
+    public Transitory convertCycleValueToTransitory(CycleValue cv) {
         Transitory transitory = null;
-        if (cycleValue.getName().equals("DurationPeriodicInc")) {
+        if (cv.getName().equals("DurationPeriodicInc")) {
             // CycleValue(String name, double value, double multiplier, double floor, double ceiling, double initialValue)
-            transitory = new Transitory(cycleValue.getName(), getExercise(), getVariation(), cycleValue.getValue(), cycleValue.getMultiplier(), cycleValue.getFloor(), cycleValue.getCeiling(), cycleValue.getInitialValue(), 0.0d);
+            transitory = new Transitory(cv.getName(), getExercise(), getVariation(), cv.getValue(), cv.getMultiplier(), cv.getFloor(), cv.getCeiling(), cv.getInitialValue(), 0.0d);
+        } else if (cv.getName().equals("StepFlexProportion")) {
+            transitory = new Transitory(cv.getName(), getExercise(), getVariation(), cv.getValue(), cv.getMultiplier(), cv.getFloor(), cv.getCeiling(), cv.getInitialValue(), 0.0d);
         } else {
-            transitory = new Transitory(cycleValue.getName(), getExercise(), getVariation(), cycleValue.getValue(), cycleValue.getMultiplier(), cycleValue.getFloor(), cycleValue.getCeiling(), 0.0d, 0.0d);
+            transitory = new Transitory(cv.getName(), getExercise(), getVariation(), cv.getValue(), cv.getMultiplier(), cv.getFloor(), cv.getCeiling(), 0.0d, 0.0d);
         }
 
         return transitory;
@@ -166,15 +145,19 @@ public class KegelTemplate extends ExerciseTemplate {
     public void initMeasureMap() {
         this.measureMap = new HashMap<>();
         // measureMap.put(getDurationMeasure().getGroup(), getStepFlexProportionMeasure());
+        // measureMap.put(getDurationMeasure().getGroup(), getStepFlexProportionMeasure());
         measureMap.put(getDurationMeasure().getGroup(), getDurationMeasure());
+        // measureMap.put(getStepFlexProportionMeasure().getGroup(), getDurationMeasure());
         // measureMap.put(getStepFlexProportionMeasure().getGroup(), getDurationMeasure());
     }
 
     @Override
     public List<Measure> getMeasureList() {
         List<Measure> list = new ArrayList<>();
+        //Measure stepFlexProp = getStepFlexProportionMeasure();
         Measure duIncMes = getDurationMeasure();
 
+        //list.add(stepFlexProp);
         list.add(duIncMes);
 
         return list;
@@ -208,7 +191,12 @@ public class KegelTemplate extends ExerciseTemplate {
     }
 
     private Measure getStepFlexProportionMeasure() {
-        return null;
+        Remedy incRem = new Remedy(1.19, 0, 0);
+        Remedy decRem = new Remedy(1.19, 0, 0);
+        Optional<Remedy> balRem = Optional.empty();
+        int ttl = 1;
+
+        return new Measure(Measure.Group.STEP_FLEX_PROPORTION, incRem, decRem, balRem, 1);
     }
 
     @Override

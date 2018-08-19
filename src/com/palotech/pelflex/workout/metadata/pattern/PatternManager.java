@@ -12,6 +12,8 @@ public class PatternManager {
     public static Pattern generatePattern(PatternMetadata metadata) {
         List<ComplexContainer> containersList = generateStepContainersList(metadata);
 
+        // TODO print balance
+
         List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
 
         Pattern pattern = new Pattern(metadata, stepsList);
