@@ -32,7 +32,9 @@ public class WorkoutService {
 
     private static ExerciseTemplate getNextSuggestedWorkoutTemplate() {
         ExerciseTemplate.Exercise nextExercise = getNextSuggestedExercise();
-        ExerciseTemplate.Variation nextVariation = getNextSuggestedVariation(nextExercise);
+        // TODO We dont want FAST kegels at the moment - only NORMAL, for debugging purposes
+        // ExerciseTemplate.Variation nextVariation = getNextSuggestedVariation(nextExercise);
+        ExerciseTemplate.Variation nextVariation = ExerciseTemplate.Variation.NORMAL;
 
         return ExerciseTemplate.generateExerciseTemplate(nextExercise, nextVariation);
     }

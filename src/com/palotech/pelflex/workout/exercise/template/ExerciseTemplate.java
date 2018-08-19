@@ -85,6 +85,8 @@ public abstract class ExerciseTemplate implements Accumulative {
 
     public abstract List<Measure> getMeasureClipList(double userFeedbackCoef);
 
+    public abstract int getLedgerMaxLevel();
+
     @Override
     public String toString() {
         return getExercise() + " " + variation;

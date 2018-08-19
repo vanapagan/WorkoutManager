@@ -3,7 +3,6 @@ package com.palotech.pelflex.workout.metadata;
 import com.palotech.pelflex.workout.burner.Transitory;
 import com.palotech.pelflex.workout.burner.TransitoryManager;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
-import com.palotech.pelflex.workout.measure.Measure;
 import com.palotech.pelflex.workout.metadata.feedback.FeedbackService;
 
 import java.util.ArrayList;
@@ -25,7 +24,8 @@ public class LedgerManager {
                 .filter(l -> l.getExercise() == exercise)
                 .filter(l -> l.getVariation() == variation)
                 //.filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
-                .filter(l -> l.getMeasureClipList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))
+                .filter(l -> !l.isCompleted())
+                //.filter(l -> l.getMeasureClipList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))
                 .collect(Collectors.toList()).isEmpty()) {
 
             // TODO acquire list of keys for Transitories, so that we can fetch their latest values from db
@@ -39,6 +39,7 @@ public class LedgerManager {
             double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(exercise, variation);
 
             ledgerList.add(new Ledger(exerciseTemplate, transitoryList, userFeedbackCoef));
+            System.out.println("Created new Ledger instance");
         }
 
         // filter(l -> l.getMeasureList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))
@@ -47,8 +48,9 @@ public class LedgerManager {
                 .stream()
                 .filter(l -> l.getExercise() == exercise)
                 .filter(l -> l.getVariation() == variation)
+                .filter(l -> !l.isCompleted())
                 // TODO not implemented yet -> .filter(l -> l.getMeasureList().stream().anyMatch(m -> m.isAlive()))
-                .filter(l -> l.getMeasureClipList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))
+                // .filter(l -> l.getMeasureClipList().stream().anyMatch(m -> m.getGroup() == Measure.Group.DURATION_LENGTH))
                 .sorted(Comparator.comparing(Ledger::getId).reversed())
                 .findFirst();
 

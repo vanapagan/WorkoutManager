@@ -21,14 +21,15 @@ public class Accumulator {
     }
 
     public void accumulate() {
-        double newValue;
         if (isCeilingReached()) {
-            newValue = floorValue + initalValue;
+            reset();
         } else {
-            newValue = value * multiplier;
+            setValue(value * multiplier);
         }
+    }
 
-        setValue(newValue);
+    public void reset() {
+        setValue(floorValue + initalValue);
     }
 
     private void setValue(double newValue) {

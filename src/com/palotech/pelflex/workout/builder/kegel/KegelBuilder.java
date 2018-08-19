@@ -37,70 +37,47 @@ public class KegelBuilder extends Builder {
     }
 
     private void accumulate() {
-        ledger.getAccumulator().accumulate();
         // TODO lisame Ledgeri kylge ka j2rgmise Measure-i, v6i kui tal juba on k6ik olemas, siis ei tee midagi
+        ledger.progressLedger();
         // TODO also lähtesta k6ik Measure-id, kui Workout-i duration-it on tõstetud
     }
 
     @Override
     protected Difficulty createDifficulty() {
-        // TODO Me tahame k6ik need Workout-i kyljest lahti yhendada ja need hoopis ledgeriga yhendada
-
-        //double lastHandicap = lastMetadata.getDifficulty().getHandicap();
-
-        // TODO hangime need v22rtused ledgeri kyljest
-        // "DurationPeriodicInc"
-        // "DurationPercentageSkim"
-        // TODO Ledger v6iks juba vastavad CycleValue-d meile tagasi anda
-        //double lastIncPercentage = lastMetadata.getDifficulty().getIncPercentage();
-        //double lastDecPercentage = lastMetadata.getDifficulty().getDecPercentage();
-
         double maxDuration = lastMetadata.getDifficulty().getMaxDuration();
-        //double increaseEdge = lastHandicap;
 
-        //double increasePercentage = lastIncPercentage;
-        //double handicapPercentage = lastDecPercentage;
-        // TODO double userFeedbackCoef = FeedbackService.getUserFeedbackCoefficient(lastWorkout.getId());
-        // maxDuration = maxDuration * (1.0d + userFeedbackCoef);
-        maxDuration = maxDuration * (1.0d + 0.0d);
+        maxDuration = maxDuration * (1.0d + ledger.getUserFeedbackCoef());
 
         List<Transitory> transitoryList = ledger.getTransitoryList();
 
         CycleValue durIncValue = template.convertTransitoryToCycleValue(transitoryList, "DurationPeriodicInc");
         CycleValue durSkimValue = template.convertTransitoryToCycleValue(transitoryList, "DurationPercentageSkim");
 
-        // If ceiling is reached and there is an INCREMENT_DURATION in ledger's measures
         boolean isItTimeToAccumulate = ledger.isItTimeToAccumulate(Measure.Group.DURATION_LENGTH);
         double cycleValue = isItTimeToAccumulate ? durIncValue.setAndReturnNewValue() : durSkimValue.setAndReturnNewValue();
 
-        // TODO removing executed measures from the clip
+        // TODO Kui me runtime-i ajal juba siia kohta j6uame, siis peaks measureClipList juba j2rgmisi rakendatavaid Measure-id sisaldama
         if (isItTimeToAccumulate) {
             List<Measure> measureClipList = ledger.getMeasureClipList();
             Optional<Measure> measureOptional = measureClipList.stream().filter(m -> m.getGroup() == Measure.Group.DURATION_LENGTH).findAny();
             if (measureOptional.isPresent()) {
                 Measure measure = measureOptional.get();
                 measureClipList.remove(measure);
+                ledger.getMeasureList().add(measure);
             }
         }
 
-        // TODO CycleValue tuleb meil kuidagimoodi maha salvestada, et seda siis hiljem kysida saaks, sama võtmega
-        // TODO CycleValue-d tuleb tagasi Transitory-deks maha kirjutada ja siis ilmselt ledgeri kylge lisada?
         Transitory durIncTransitory = template.convertCycleValueToTransitory(durIncValue);
         Transitory durSkimTransitory = template.convertCycleValueToTransitory(durSkimValue);
 
         transitoryList.add(durIncTransitory);
         transitoryList.add(durSkimTransitory);
 
-        // TODO Burnerite v22rtused peaksid juba siinkohal Ledgeri kyljes olema
-
-        // increaseEdge = ledger.getAccumulator().getValue();
-
         int raiseOrLowerMultiplier = ledger.isCeilingReached() ? 1 : -1;
         double duration = maxDuration * (1.0d + raiseOrLowerMultiplier * cycleValue);
 
         maxDuration = duration > maxDuration ? duration : maxDuration;
 
-        // return new Difficulty(duration, maxDuration, increaseEdge, durIncValue.getValue(), durSkimValue.getValue());
         return new Difficulty(duration, maxDuration);
     }
 

@@ -190,6 +190,11 @@ public class KegelTemplate extends ExerciseTemplate {
         return getMeasureList();
     }
 
+    @Override
+    public int getLedgerMaxLevel() {
+        return 3;
+    }
+
     private Measure getDurationMeasure() {
         // String name, double value1, double value2, double value3, int ttl
         Remedy incRem = new Remedy(1.19, 0, 0);
