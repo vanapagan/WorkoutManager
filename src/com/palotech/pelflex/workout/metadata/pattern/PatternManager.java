@@ -1,5 +1,10 @@
 package com.palotech.pelflex.workout.metadata.pattern;
 
+import com.palotech.pelflex.workout.burner.Transitory;
+import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
+import com.palotech.pelflex.workout.exercise.value.CycleValue;
+import com.palotech.pelflex.workout.measure.Measure;
+import com.palotech.pelflex.workout.metadata.Ledger;
 import com.palotech.pelflex.workout.metadata.pattern.step.ComplexContainer;
 import com.palotech.pelflex.workout.metadata.pattern.step.ComplexStep;
 
@@ -9,12 +14,35 @@ import java.util.stream.Collectors;
 
 public class PatternManager {
 
-    public static Pattern generatePattern(PatternMetadata metadata) {
+    public static Pattern generatePattern(PatternMetadata metadata, Ledger ledger) {
         List<ComplexContainer> containersList = generateStepContainersList(metadata);
 
         // TODO print balance
 
-        List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), 0.5d)).collect(Collectors.toList());
+        List<Transitory> transitoryList = ledger.getTransitoryList();
+        ExerciseTemplate template = ledger.getExerciseTemplate();
+
+        CycleValue stepFlexPropCycle = template.convertTransitoryToCycleValue(transitoryList, "StepFlexProportion");
+
+        boolean isItTimeToAccumulate = ledger.isItTimeToAccumulate(Measure.Group.STEP_FLEX_PROPORTION);
+        double balance = isItTimeToAccumulate ? stepFlexPropCycle.setAndReturnNewValue() : stepFlexPropCycle.getValue();
+
+        if (isItTimeToAccumulate) {
+            System.out.println("StepFlexProportion INC");
+            List<Measure> measureClipList = ledger.getMeasureClipList();
+            Optional<Measure> measureOptional = measureClipList.stream().filter(m -> m.getGroup() == Measure.Group.STEP_FLEX_PROPORTION).findAny();
+            if (measureOptional.isPresent()) {
+                Measure measure = measureOptional.get();
+                measureClipList.remove(measure);
+                ledger.getMeasureList().add(measure);
+            }
+        }
+
+        Transitory stepFlexTransitory = template.convertCycleValueToTransitory(stepFlexPropCycle);
+
+        transitoryList.add(stepFlexTransitory);
+
+        List<ComplexStep> stepsList = containersList.stream().map(c -> new ComplexStep(c.getType(), c.getDuration(), balance)).collect(Collectors.toList());
 
         Pattern pattern = new Pattern(metadata, stepsList);
 

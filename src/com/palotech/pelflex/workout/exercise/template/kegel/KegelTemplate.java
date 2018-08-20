@@ -5,6 +5,7 @@ import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.builder.Builder;
 import com.palotech.pelflex.workout.builder.kegel.KegelBuilder;
 import com.palotech.pelflex.workout.burner.Transitory;
+import com.palotech.pelflex.workout.burner.TransitoryManager;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.exercise.value.Accumulator;
 import com.palotech.pelflex.workout.exercise.value.CycleValue;
@@ -43,7 +44,12 @@ public class KegelTemplate extends ExerciseTemplate {
 
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
-        Pattern pattern = PatternManager.generatePattern(patternMetadata);
+
+        List<Transitory> transitoryList = TransitoryManager.getTransitoryList(exerciseTemplate);
+
+        Ledger ledger = new Ledger(exerciseTemplate, transitoryList);
+
+        Pattern pattern = PatternManager.generatePattern(patternMetadata, ledger);
         Metadata metadata = new Metadata(KEGEL, Variation.NORMAL, difficulty, pattern);
 
         return new Kegel(metadata);
@@ -60,7 +66,6 @@ public class KegelTemplate extends ExerciseTemplate {
             } else if ("DurationPercentageSkim".equals(key)) {
                 cycleValue = new PercentageCycleValue("DurationPercentageSkim", transitory.getDoubleValue1(), transitory.getDoubleValue2(), transitory.getDoubleValue3(), transitory.getDoubleValue4(), transitory.getDoubleValue5());
             } else if ("StepFlexProportion".equals(key)) {
-                // 0.0d, 0.1d, 0.3, 0.5, 0.0d, 0.0d
                 cycleValue = new CycleValue("StepFlexProportion", transitory.getDoubleValue1(), transitory.getDoubleValue2(), transitory.getDoubleValue3(), transitory.getDoubleValue4(), transitory.getDoubleValue5());
             }
         }
@@ -73,7 +78,7 @@ public class KegelTemplate extends ExerciseTemplate {
         List<String> list = new ArrayList();
         list.add("DurationPeriodicInc");
         list.add("DurationPercentageSkim");
-        //list.add("StepFlexProportion");
+        list.add("StepFlexProportion");
 
         return list;
     }
@@ -85,7 +90,7 @@ public class KegelTemplate extends ExerciseTemplate {
         if (key.equals("DurationPeriodicInc")) {
             transitory = new Transitory("DurationPeriodicInc", getExercise(), getVariation(), 0.0d, 1.50d, 0.0d, 0.04d, 0.008d, 0.0d);
         } else if (key.equals("StepFlexProportion")) {
-            transitory = new Transitory("StepFlexProportion", getExercise(), getVariation(), 0.0d, 0.1d, 0.3, 0.5, 0.0d, 0.0d);
+            transitory = new Transitory("StepFlexProportion", getExercise(), getVariation(), 0.5d, 1.35d, 0.0d, 0.8d, 0.3d, 0.0d);
         } else {
             transitory = new Transitory("DurationPercentageSkim", getExercise(), getVariation(), 0.0d, 0.0d, 0.10d, 0.01d, 0.0d, 0.0d);
         }
@@ -146,18 +151,18 @@ public class KegelTemplate extends ExerciseTemplate {
         this.measureMap = new HashMap<>();
         // measureMap.put(getDurationMeasure().getGroup(), getStepFlexProportionMeasure());
         // measureMap.put(getDurationMeasure().getGroup(), getStepFlexProportionMeasure());
-        measureMap.put(getDurationMeasure().getGroup(), getDurationMeasure());
-        // measureMap.put(getStepFlexProportionMeasure().getGroup(), getDurationMeasure());
+        measureMap.put(getDurationMeasure().getGroup(), getStepFlexProportionMeasure());
+        measureMap.put(getStepFlexProportionMeasure().getGroup(), getDurationMeasure());
         // measureMap.put(getStepFlexProportionMeasure().getGroup(), getDurationMeasure());
     }
 
     @Override
     public List<Measure> getMeasureList() {
         List<Measure> list = new ArrayList<>();
-        //Measure stepFlexProp = getStepFlexProportionMeasure();
+        Measure stepFlexProp = getStepFlexProportionMeasure();
         Measure duIncMes = getDurationMeasure();
 
-        //list.add(stepFlexProp);
+        list.add(stepFlexProp);
         list.add(duIncMes);
 
         return list;
@@ -172,7 +177,7 @@ public class KegelTemplate extends ExerciseTemplate {
     public List<Measure> getMeasureClipList(double userFeedbackCoef, Measure lastMeasure) {
         List<Measure> measureClipList = new ArrayList<>();
         measureClipList.add(getNextMeasure(lastMeasure));
-        return getMeasureList();
+        return measureClipList;
     }
 
     @Override

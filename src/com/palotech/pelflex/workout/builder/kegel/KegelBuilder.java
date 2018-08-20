@@ -58,6 +58,7 @@ public class KegelBuilder extends Builder {
 
         // TODO Kui me runtime-i ajal juba siia kohta j6uame, siis peaks measureClipList juba j2rgmisi rakendatavaid Measure-id sisaldama
         if (isItTimeToAccumulate) {
+            System.out.println("DurationPeriodInc INC");
             List<Measure> measureClipList = ledger.getMeasureClipList();
             Optional<Measure> measureOptional = measureClipList.stream().filter(m -> m.getGroup() == Measure.Group.DURATION_LENGTH).findAny();
             if (measureOptional.isPresent()) {
@@ -97,7 +98,7 @@ public class KegelBuilder extends Builder {
 
     @Override
     protected Pattern createPattern() {
-        return PatternManager.generatePattern(patternMetadata);
+        return PatternManager.generatePattern(patternMetadata, ledger);
     }
 
     @Override

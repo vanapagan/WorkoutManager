@@ -66,7 +66,7 @@ public class Pattern {
     }
 
     public String toStringCompact() {
-        return "Pattern: " + compStepList.stream().map(c -> "" + c.getDuration()).collect(Collectors.joining(" "));
+        return "Pattern: " + compStepList.stream().map(c -> "" + c.getDuration()).collect(Collectors.joining(" ")) + " Balance: " + compStepList.get(0).getBalance();
     }
 
 }

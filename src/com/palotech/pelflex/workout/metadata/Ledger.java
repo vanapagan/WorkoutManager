@@ -36,8 +36,12 @@ public class Ledger {
         this.exerciseTemplate = exerciseTemplate;
     }
 
+    public ExerciseTemplate getExerciseTemplate() {
+        return exerciseTemplate;
+    }
+
     private Measure getLastAppliedMeasure() {
-        return !appliedMeasuresList.isEmpty() ? appliedMeasuresList.get(appliedMeasuresList.size() - 1) : exerciseTemplate.getNextMeasure(null);
+        return !appliedMeasuresList.isEmpty() ? appliedMeasuresList.get(appliedMeasuresList.size() - 1) : exerciseTemplate.getMeasureList().get(0);
     }
 
     public void loadMeasuresToClip(double userFeedbackCoef) {

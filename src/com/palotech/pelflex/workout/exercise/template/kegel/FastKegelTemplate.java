@@ -4,6 +4,8 @@ import com.palotech.pelflex.workout.FastKegel;
 import com.palotech.pelflex.workout.Workout;
 import com.palotech.pelflex.workout.builder.Builder;
 import com.palotech.pelflex.workout.builder.kegel.FastKegelBuilder;
+import com.palotech.pelflex.workout.burner.Transitory;
+import com.palotech.pelflex.workout.burner.TransitoryManager;
 import com.palotech.pelflex.workout.exercise.template.ExerciseTemplate;
 import com.palotech.pelflex.workout.metadata.Difficulty;
 import com.palotech.pelflex.workout.metadata.Ledger;
@@ -11,6 +13,8 @@ import com.palotech.pelflex.workout.metadata.Metadata;
 import com.palotech.pelflex.workout.metadata.pattern.Pattern;
 import com.palotech.pelflex.workout.metadata.pattern.PatternManager;
 import com.palotech.pelflex.workout.metadata.pattern.PatternMetadata;
+
+import java.util.List;
 
 import static com.palotech.pelflex.workout.exercise.template.ExerciseTemplate.Exercise.KEGEL;
 
@@ -35,7 +39,12 @@ public class FastKegelTemplate extends KegelTemplate {
 
         int durationAsInt = new Double(duration).intValue();
         PatternMetadata patternMetadata = new PatternMetadata(durationAsInt, denominator, min, max);
-        Pattern pattern = PatternManager.generatePattern(patternMetadata);
+
+        List<Transitory> transitoryList = TransitoryManager.getTransitoryList(exerciseTemplate);
+
+        Ledger ledger = new Ledger(exerciseTemplate, transitoryList);
+
+        Pattern pattern = PatternManager.generatePattern(patternMetadata, ledger);
         Metadata metadata = new Metadata(KEGEL, Variation.FAST, difficulty, pattern);
 
         return new FastKegel(metadata);
